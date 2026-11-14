@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { useDataset } from "@/lib/useDataset";
-import { isSaffireGrid, typeLabel } from "@/lib/images";
+import { isSaffireGrid, measuredPattern, typeLabel } from "@/lib/images";
 import type { Detection, Distortion, ImageInfo } from "@/types";
 import PageHeader from "@/components/PageHeader";
 import Card from "@/components/Card";
@@ -50,6 +50,7 @@ function Analysis() {
   const [pattern, setPattern] = useState<[number, number]>([6, 4]);
   const [detection, setDetection] = useState<Detection | null>(null);
   const current = detection && detection.image_id === imageId && detection.pattern.join() === pattern.join() ? detection : null;
+  useEffect(() => { const p = image && measuredPattern(image); if (p) setPattern(p); }, [image]);
 
   if (state === "loading") return <PageHeader title="Image Analysis" subtitle="Loading images…" />;
   if (state === "offline" || state === "empty" || !image) {
@@ -144,7 +145,8 @@ function Preprocess({ image }: { image: ImageInfo }) {
   );
 }
 
-function PatternInput({ pattern, setPattern }: { pattern: [number, number]; setPattern: (p: [number, number]) => void }) {
+function PatternInput({ image, pattern, setPattern }: { image: ImageInfo; pattern: [number, number]; setPattern: (p: [number, number]) => void }) {
+  const measured = measuredPattern(image);
   const field = (i: 0 | 1, label: string) => (
     <label className="space-y-1 text-xs text-muted">
       <span>{label}</span>
@@ -161,6 +163,12 @@ function PatternInput({ pattern, setPattern }: { pattern: [number, number]; setP
         {field(1, "Rows")}
       </div>
       <p className="text-xs text-muted">Count corners where four squares meet, not squares. OpenCV must see the whole pattern. You choose the size; it is not verified against the real grid.</p>
+      {measured && (
+        <p className="text-xs text-muted">
+          <span className="num font-mono text-ink">{measured.join("×")}</span> is the largest pattern the backend team found on this image.
+          Smaller patterns can match corners that are not neighbours.
+        </p>
+      )}
     </fieldset>
   );
 }
@@ -179,7 +187,7 @@ function Checkerboard({ image, pattern, setPattern, detection, onDetected }: {
   return (
     <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
       <div className="space-y-4">
-        <PatternInput pattern={pattern} setPattern={setPattern} />
+        <PatternInput image={image} pattern={pattern} setPattern={setPattern} />
         <button className="btn w-full justify-center" onClick={run} disabled={busy}>{busy ? "Detecting…" : "Detect corners"}</button>
         {detection && (
           <div className="space-y-2 rounded-md border border-edge bg-panel p-3 text-sm" aria-live="polite">
@@ -241,7 +249,7 @@ function DistortionPanel({ image, pattern, setPattern, detection, onDetected }: 
   return (
     <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
       <div className="space-y-4">
-        <PatternInput pattern={pattern} setPattern={setPattern} />
+        <PatternInput image={image} pattern={pattern} setPattern={setPattern} />
         <button className="btn w-full justify-center" onClick={measure} disabled={busy}>{busy ? "Measuring…" : "Measure grid geometry"}</button>
         <p className="text-xs text-muted">These are observed pixel measurements, not lens coefficients. Coefficients need a valid calibration.</p>
       </div>
@@ -261,6 +269,21 @@ function DistortionPanel({ image, pattern, setPattern, detection, onDetected }: 
               ))}
             </dl>
             <SpacingRange spacing={g.spacing_px} />
+            {g.homography_residual && (
+              <Card title="Planar fit residual" level={3}>
+                <p className="mb-3 max-w-[70ch] text-xs text-muted">
+                  Pixel distance left after fitting a perfectly flat grid to the corners. A flat fit cannot follow lens bending, so larger values mean more distortion. These are pixels, not lens coefficients.
+                </p>
+                <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {([["RMS", g.homography_residual.rms_px], ["Median", g.homography_residual.median_px], ["95th percentile", g.homography_residual.p95_px], ["Max", g.homography_residual.max_px]] as const).map(([k, v]) => (
+                    <div key={k}>
+                      <dt className="text-xs text-muted">{k}</dt>
+                      <dd className="num font-mono text-sm text-ink">{v.toFixed(2)} px</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Card>
+            )}
             {detection?.success && (
               <Card title="Row straightness" level={3}>
                 <p className="mb-3 text-xs text-muted">

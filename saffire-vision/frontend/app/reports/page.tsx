@@ -87,6 +87,16 @@ export default function Reports() {
               </Card>
 
               <div className="grid gap-4 xl:grid-cols-2">
+                <Card title={`Preprocessing · ${report.preprocessing.length}`} level={3}>
+                  {report.preprocessing.length ? (
+                    <ol className="space-y-2">{report.preprocessing.map((s, i) => (
+                      <li key={i} className="space-y-0.5">
+                        <span className="block text-xs capitalize text-ink">{s.operation}</span>
+                        <FileName name={s.image_id} className="block text-xs text-muted" />
+                      </li>
+                    ))}</ol>
+                  ) : <p className="text-sm text-muted">No preprocessing runs at the time of this report.</p>}
+                </Card>
                 <Card title={`Checkerboard detections · ${report.detections.length}`} level={3}>
                   {report.detections.length ? (
                     <ol className="space-y-2">{report.detections.map((d, i) => (
@@ -99,6 +109,21 @@ export default function Reports() {
                     ))}</ol>
                   ) : <p className="text-sm text-muted">No detection runs at the time of this report.</p>}
                 </Card>
+                <Card title={`Grid geometry · ${report.distortion.length}`} level={3}>
+                  {report.distortion.length ? (
+                    <ol className="space-y-2">{report.distortion.map((s, i) => (
+                      <li key={i} className="space-y-0.5">
+                        <span className="num block text-xs text-ink">
+                          {s.cols}×{s.rows} · {s.geometry.available
+                            ? `spacing ${s.geometry.spacing_px.mean.toFixed(1)} px · row straightness ${s.geometry.row_straightness_rms_px.toFixed(2)} px${s.geometry.homography_residual ? ` · planar fit RMS ${s.geometry.homography_residual.rms_px.toFixed(2)} px` : ""}`
+                            : "not measured"}
+                        </span>
+                        {!s.geometry.available && <span className="block text-xs text-warn">{s.geometry.reason}</span>}
+                        <FileName name={s.image_id} className="block text-xs text-muted" />
+                      </li>
+                    ))}</ol>
+                  ) : <p className="text-sm text-muted">No grid geometry runs at the time of this report.</p>}
+                </Card>
                 <Card title="Calibration" level={3}>
                   {report.calibration.status === "not_run" ? <p className="text-sm text-muted">Not run at the time of this report.</p> : (
                     <div className="space-y-2 text-sm">
@@ -110,9 +135,6 @@ export default function Reports() {
                       {report.calibration.problems?.length ? <ul className="list-disc space-y-1 pl-5 text-xs text-warn">{report.calibration.problems.map(p => <li key={p}>{p}</li>)}</ul> : null}
                     </div>
                   )}
-                </Card>
-                <Card title="Distortion analysis" level={3}>
-                  <p className="text-sm text-muted">Not included in backend reports yet. Measure it on the Image Analysis page.</p>
                 </Card>
                 <Card title="Processing and limitations" level={3}>
                   <p className="text-sm text-muted">{report.processing}</p>
