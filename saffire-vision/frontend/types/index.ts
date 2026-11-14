@@ -2,7 +2,17 @@ export interface ImageInfo { image_id: string; filename: string; width: number; 
   color_mode: string; file_size_bytes: number; kind: string; variant: string }
 export interface Dataset { source: string; count: number; images: ImageInfo[]; notes: string[] }
 export interface Detection { success: boolean; pattern: [number, number]; num_corners: number; message: string;
-  method: string | null; image_id: string; overlay_file: string | null; corners: number[][] }
-export interface Calibration { status: string; problems?: string[]; views_supplied?: number; min_views?: number;
+  method: string | null; image_id: string; overlay_file: string | null; corners: number[][]; image_size: [number, number] }
+export interface Geometry { available: true; kind: string; spacing_px: { mean: number; std: number; min: number; max: number };
+  spacing_cv: number; row_straightness_rms_px: number; note: string;
+  homography_residual?: { rms_px: number; median_px: number; p95_px: number; max_px: number } }
+export interface Distortion { image_id: string; detection_success: boolean; geometry: Geometry | { available: false; reason: string } }
+export interface PreprocessStep { image_id: string; operation: string; saved_file: string; timestamp: string }
+export interface DistortionStep { image_id: string; cols: number; rows: number; timestamp: string; geometry: Distortion["geometry"] }
+export interface Calibration { status: "not_run" | "insufficient" | "valid"; problems?: string[]; views_supplied?: number; min_views?: number;
+  views_used?: string[]; views_failed?: string[]; image_size?: [number, number]; units?: string; timestamp?: string;
   rms_reprojection_error_px?: number; camera_matrix?: number[][]; distortion_coefficients?: number[]; provenance?: string }
+export interface Report { report_id: string; generated: string }
+export interface ReportDetail extends Report { dataset: Dataset; preprocessing: PreprocessStep[]; detections: HistoryItem[];
+  distortion: DistortionStep[]; calibration: Calibration; processing: string; limitations: string[] }
 export interface HistoryItem { image_id: string; success: boolean; pattern: number[]; num_corners: number; message: string }

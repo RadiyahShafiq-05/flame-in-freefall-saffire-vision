@@ -1,4 +1,13 @@
 @tailwind base; @tailwind components; @tailwind utilities;
-body { @apply bg-navy text-white antialiased; font-family: ui-sans-serif, system-ui, sans-serif; }
-.btn { @apply rounded border border-accent/50 bg-accent/10 px-3 py-1.5 text-sm text-accent hover:bg-accent/20 disabled:opacity-40; }
-.input { @apply rounded border border-edge bg-navy px-2 py-1 text-sm w-24; }
+
+html { scrollbar-color: #33445e #070b14; }
+body { @apply bg-base text-ink antialiased font-sans; }
+p, li { text-wrap: pretty; }
+::selection { background: rgba(34, 211, 238, 0.3); color: #e6edf7; }
+:focus-visible { @apply outline-none ring-2 ring-accent/70 ring-offset-2 ring-offset-base; }
+
+.btn { @apply inline-flex items-center gap-2 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-40; }
+.btn-ghost { @apply inline-flex items-center gap-2 rounded-md border border-edge-strong px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent/40 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40; }
+.input { @apply rounded-md border border-edge-strong bg-base px-2 py-1 text-sm w-24; }
+.link { @apply text-accent-2 underline-offset-2 hover:underline; }
+.num { font-variant-numeric: tabular-nums; }
