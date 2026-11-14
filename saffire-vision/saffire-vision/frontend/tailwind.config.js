@@ -7,9 +7,11 @@ module.exports = {
         panel: "#0e1522",
         raised: "#141d2e",
         edge: "#1e2a3d",
+        "edge-strong": "#33445e",
         ink: "#e6edf7",
         muted: "#9aa8bd",
-        faint: "#64748b",
+        // Lightest grey that still passes WCAG AA (4.5:1) on base, panel and raised surfaces.
+        faint: "#7d8ca3",
         accent: "#22d3ee",
         "accent-2": "#3b82f6",
         ok: "#34d399",

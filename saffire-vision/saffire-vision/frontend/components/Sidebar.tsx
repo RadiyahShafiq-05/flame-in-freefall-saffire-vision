@@ -22,9 +22,9 @@ export default function Sidebar() {
   const isActive = (href: string) => href === "/" ? path === "/" : path.startsWith(href);
   return (
     <nav aria-label="Main" className="sticky top-14 h-[calc(100vh-3.5rem)] w-60 shrink-0 overflow-y-auto border-r border-edge bg-panel px-3 py-4">
-      <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-faint">SAFFIRE Vision</p>
+      <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-faint">SAFFIRE Vision</p>
       <div className="space-y-0.5">{NAV.filter(n => n.group === "module").map(n => <Item key={n.href} item={n} active={isActive(n.href)} />)}</div>
-      <p className="mt-6 border-t border-edge px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wider text-faint">Project</p>
+      <p className="mt-6 border-t border-edge px-3 pb-2 pt-4 text-xs font-semibold uppercase tracking-wider text-faint">Project</p>
       <div className="space-y-0.5">{NAV.filter(n => n.group === "context").map(n => <Item key={n.href} item={n} active={isActive(n.href)} />)}</div>
     </nav>
   );

@@ -17,12 +17,15 @@ export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:bg-panel focus:px-3 focus:py-2 focus:text-sm focus:text-accent">
+          Skip to main content
+        </a>
         <DatasetProvider>
           <TopBar />
           <div className="flex">
             <Sidebar />
             <div className="flex min-h-[calc(100vh-3.5rem)] min-w-0 flex-1 flex-col">
-              <main className="w-full max-w-7xl flex-1 px-8 py-7">{children}</main>
+              <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1400px] flex-1 px-8 py-7 focus:outline-none">{children}</main>
               <footer className="border-t border-edge px-8 py-4 text-xs text-faint">
                 Independent project. Not endorsed by NASA. Data: NASA Physical Sciences Informatics (PSI).
               </footer>

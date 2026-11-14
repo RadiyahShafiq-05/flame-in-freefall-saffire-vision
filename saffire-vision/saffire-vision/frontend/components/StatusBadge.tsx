@@ -1,7 +1,8 @@
-export type Status = "completed" | "in_progress" | "pending" | "not_tracked" | "failed";
+export type Status = "completed" | "partial" | "in_progress" | "pending" | "not_tracked" | "failed";
 
 const STYLE: Record<Status, { label: string; cls: string; dot: string }> = {
   completed: { label: "Completed", cls: "border-ok/40 text-ok", dot: "bg-ok" },
+  partial: { label: "Partial", cls: "border-accent/40 text-accent", dot: "bg-accent/60 ring-1 ring-accent" },
   in_progress: { label: "In progress", cls: "border-accent/40 text-accent", dot: "bg-accent" },
   pending: { label: "Pending", cls: "border-edge text-muted", dot: "bg-faint" },
   not_tracked: { label: "Not tracked", cls: "border-dashed border-edge text-faint", dot: "bg-transparent border border-faint" },
