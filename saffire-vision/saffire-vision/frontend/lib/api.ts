@@ -1,4 +1,4 @@
-import type { Dataset, Detection, Calibration, HistoryItem, ImageInfo } from "@/types";
+import type { Dataset, Detection, Calibration, HistoryItem, ImageInfo, Report } from "@/types";
 export const API = process.env.NEXT_PUBLIC_API_URL ?? ""; // empty = same-origin, proxied by Next rewrites
 async function j<T>(r: Response): Promise<T> {
   if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(typeof e.detail === "string" ? e.detail : `HTTP ${r.status}`); }
@@ -16,6 +16,7 @@ export const api = {
   upload: (f: File) => { const fd = new FormData(); fd.append("file", f); return fetch(API + "/api/images/upload", { method: "POST", body: fd }).then(j<ImageInfo>); },
   createReport: () => fetch(API + "/api/reports", { method: "POST" }).then(j<{ report_id: string }>),
   reports: () => fetch(API + "/api/reports").then(j<string[]>),
+  report: (id: string) => fetch(`${API}/api/reports/${encodeURIComponent(id)}`).then(j<Report>),
   imageUrl: (id: string) => `${API}/api/images/${encodeURIComponent(id)}/file`,
   preprocessUrl: async (image_id: string, operation: string) => URL.createObjectURL(await (await post("/api/analysis/preprocess", { image_id, operation })).blob()),
   overlayUrl: (f: string) => `${API}/outputs/detected/${encodeURIComponent(f)}`,

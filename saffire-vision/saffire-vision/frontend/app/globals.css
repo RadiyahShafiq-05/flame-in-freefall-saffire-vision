@@ -1,4 +1,9 @@
 @tailwind base; @tailwind components; @tailwind utilities;
-body { @apply bg-navy text-white antialiased; font-family: ui-sans-serif, system-ui, sans-serif; }
-.btn { @apply rounded border border-accent/50 bg-accent/10 px-3 py-1.5 text-sm text-accent hover:bg-accent/20 disabled:opacity-40; }
-.input { @apply rounded border border-edge bg-navy px-2 py-1 text-sm w-24; }
+
+body { @apply bg-base text-ink antialiased font-sans; }
+:focus-visible { @apply outline-none ring-2 ring-accent/70 ring-offset-2 ring-offset-base; }
+
+.btn { @apply inline-flex items-center gap-2 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-40; }
+.btn-ghost { @apply inline-flex items-center gap-2 rounded-md border border-edge px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent/40 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40; }
+.input { @apply rounded-md border border-edge bg-base px-2 py-1 text-sm w-24; }
+.link { @apply text-accent-2 underline-offset-2 hover:underline; }
