@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useDataset } from "@/lib/useDataset";
-import { typeLabel } from "@/lib/images";
+import { isSaffireGrid, typeLabel } from "@/lib/images";
 import type { ReportDetail } from "@/types";
 import PageHeader from "@/components/PageHeader";
 import Card from "@/components/Card";
@@ -76,7 +76,7 @@ export default function Reports() {
               <Card title={`Dataset · ${report.dataset.count} images`} level={3}>
                 <table className="w-full text-left text-sm">
                   <thead className="text-xs text-muted"><tr><th className="py-1 pr-3 font-medium">File</th><th className="py-1 pr-3 font-medium">Size</th><th className="py-1 font-medium">Type</th></tr></thead>
-                  <tbody>{report.dataset.images.map(i => (
+                  <tbody>{[...report.dataset.images].sort((a, b) => Number(isSaffireGrid(b)) - Number(isSaffireGrid(a))).map(i => (
                     <tr key={i.image_id} className="border-t border-edge">
                       <td className="py-1.5 pr-3"><FileName name={i.filename} className="text-xs text-ink" /></td>
                       <td className="num whitespace-nowrap py-1.5 pr-3 font-mono text-xs text-muted">{i.width}×{i.height}</td>

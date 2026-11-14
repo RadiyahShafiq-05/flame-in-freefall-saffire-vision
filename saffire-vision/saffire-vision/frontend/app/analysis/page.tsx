@@ -97,7 +97,7 @@ function Analysis() {
           <Checkerboard image={image} pattern={pattern} setPattern={setPattern} detection={current} onDetected={setDetection} />
         )}
         {tab === "distortion" && (
-          <DistortionPanel key={`${imageId}-${pattern}`} image={image} pattern={pattern} setPattern={setPattern}
+          <DistortionPanel key={imageId} image={image} pattern={pattern} setPattern={setPattern}
             detection={current} onDetected={setDetection} />
         )}
       </div>
@@ -221,14 +221,17 @@ function DistortionPanel({ image, pattern, setPattern, detection, onDetected }: 
   image: ImageInfo; pattern: [number, number]; setPattern: (p: [number, number]) => void;
   detection: Detection | null; onDetected: (d: Detection) => void;
 }) {
-  const [result, setResult] = useState<Distortion | null>(null);
+  // Results are kept with the pattern they were measured for, so editing the pattern hides them.
+  const [measured, setMeasured] = useState<{ pattern: string; d: Distortion } | null>(null);
+  const result = measured?.pattern === pattern.join() ? measured.d : null;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const measure = () => {
     setBusy(true); setError("");
+    const p = pattern.join();
     // Corners for the row view come from a detection run; reuse one for the same image and pattern.
     Promise.all([api.distortion(image.image_id, ...pattern), detection ? Promise.resolve(detection) : api.detect(image.image_id, ...pattern)])
-      .then(([d, det]) => { setResult(d); if (!detection) onDetected(det); })
+      .then(([d, det]) => { setMeasured({ pattern: p, d }); if (!detection) onDetected(det); })
       .catch(e => setError(e.message)).finally(() => setBusy(false));
   };
   const g = result?.geometry.available ? result.geometry : null;
