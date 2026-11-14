@@ -6,8 +6,8 @@ import Card from "@/components/Card";
 import EmptyState from "@/components/EmptyState";
 import Notice from "@/components/Notice";
 import {
-  CHALLENGE_URL, FAMILY_LABEL, SAFFIRE_VISION_SOURCE, briefArea, briefNote, columnVariable, displayName, doiUrl, family,
-  formatBytes, isGround, psiUrl, testRows, useInvestigations, years,
+  CHALLENGE_URL, FAMILY_LABEL, SAFFIRE_VISION_SOURCE, VARIABLE_LABEL, briefArea, briefNote, columnVariable, displayName, doiUrl, family,
+  fmtRange, formatBytes, isGround, psiUrl, testRows, useInvestigations, years,
 } from "@/lib/investigations";
 import { AreaTag, VariableTag } from "../tags";
 
@@ -85,6 +85,26 @@ export default function InvestigationDetail({ params }: { params: { accession: s
               ? <p className="max-w-[75ch] whitespace-pre-line text-sm leading-relaxed text-ink">{inv.objective}</p>
               : <p className="text-sm text-muted">PSI lists no objective for this investigation.</p>}
           </Card>
+
+          {inv.conditions.length > 0 && (
+            <Card title="Test conditions">
+              <dl className="space-y-3">
+                {inv.conditions.map(c => (
+                  <div key={`${c.table}-${c.column}`} className="grid gap-x-4 gap-y-0.5 sm:grid-cols-[9rem_1fr]">
+                    <dt className="text-sm text-muted">{VARIABLE_LABEL[c.variable]}{c.context === "oxidizer" && <span className="block text-xs text-faint">burner oxidizer stream</span>}</dt>
+                    <dd className="min-w-0">
+                      <span className="num font-mono text-sm text-ink">{fmtRange(c)}</span>
+                      <span className="block text-xs text-muted">
+                        From &quot;{c.column}&quot; in {c.table}{c.sourceUnit !== c.unit && `, converted from ${c.sourceUnit === "fraction" ? "mole fraction" : c.sourceUnit}`}; {c.rowsWithValue} of {c.rows} rows have a value.
+                      </span>
+                      {c.note && <span className="block text-xs text-warn">{c.note}</span>}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-3 text-xs text-faint">Lowest and highest value in each column, so a range covers every test in the table, not one run.</p>
+            </Card>
+          )}
 
           <Card title={`Experiment tables · ${inv.tables.length}`}>
             {inv.tables.length ? (

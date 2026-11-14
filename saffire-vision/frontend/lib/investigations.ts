@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 
 export interface Publication { title: string; authors: string; doi: string }
 export interface ExperimentTable { name: string; rows: number; columns: string[] }
+// One test-condition range from one table column, already converted to the variable's unit (see the build script).
+export interface Condition {
+  variable: Variable; unit: string; min: number; max: number; rowsWithValue: number; rows: number;
+  table: string; column: string; sourceUnit: string; context?: "oxidizer"; excluded?: number; note?: string;
+}
 export interface Investigation {
   accession: string; acronym: string; title: string; subResearchArea: string; projectType: string;
   hardware: string; hardwareLink: string; platform: string; managingCenter: string;
   startDate: string; endDate: string; doi: string; license: string; objective: string;
-  publications: Publication[]; tables: ExperimentTable[]; totalFileSizeBytes: number; related: string[]; modifiedDate: string;
+  publications: Publication[]; tables: ExperimentTable[]; conditions: Condition[]; totalFileSizeBytes: number; related: string[]; modifiedDate: string;
 }
 interface Catalog { source: string; generated: string; investigations: Investigation[] }
 
@@ -71,7 +76,18 @@ const VARIABLE_TEST: Record<Variable, RegExp> = {
   flow: /air ?flow|flow velocity|air rate|inlet velocity/i,
   pressure: /pressure|\((atm|bar)\)|mmhg|approx p /i,
 };
-export const columnVariable = (column: string) => (Object.keys(VARIABLE_TEST) as Variable[]).find(v => VARIABLE_TEST[v].test(column));
+// Reference levels quoted from the challenge brief, so ranges can be read against habitat conditions.
+export const CONDITION_AXIS: Record<Variable, { max: number; step: number; refs: { at: number; label: string }[] }> = {
+  oxygen: { max: 100, step: 20, refs: [{ at: 21, label: "Earth air 21%" }, { at: 30, label: "Moon base ≥30% (brief)" }] },
+  flow: { max: 90, step: 15, refs: [] },
+  pressure: { max: 80, step: 20, refs: [
+    { at: 4.3, label: "Spacesuit 4.3" }, { at: 10.2, label: "Moon base ≤10.2" }, { at: 14.7, label: "Earth 14.7" },
+  ] },
+};
+export const fmtValue = (v: number) => String(Number(v.toFixed(1)));
+export const fmtRange = (c: Condition) => (c.min === c.max ? fmtValue(c.min) : `${fmtValue(c.min)}–${fmtValue(c.max)}`) + ` ${c.unit}`;
+
+export const columnVariable =(column: string) => (Object.keys(VARIABLE_TEST) as Variable[]).find(v => VARIABLE_TEST[v].test(column));
 export const recordedVariables = (i: Investigation) =>
   (Object.keys(VARIABLE_TEST) as Variable[]).filter(v => i.tables.some(t => t.columns.some(c => VARIABLE_TEST[v].test(c))));
 

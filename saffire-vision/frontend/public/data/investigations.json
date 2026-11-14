@@ -227,6 +227,53 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 21.2,
+     "max": 85,
+     "rowsWithValue": 109,
+     "rows": 120,
+     "table": "Flame Design_Inverse Flame",
+     "column": "XO2",
+     "sourceUnit": "fraction",
+     "context": "oxidizer"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 6.24,
+     "max": 44.2,
+     "rowsWithValue": 120,
+     "rows": 120,
+     "table": "Flame Design_Inverse Flame",
+     "column": "pinit (atm)",
+     "sourceUnit": "atm"
+    },
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 19.8,
+     "max": 40,
+     "rowsWithValue": 207,
+     "rows": 207,
+     "table": "Flame Design_Normal Flame",
+     "column": "XO2 (init)",
+     "sourceUnit": "fraction"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 13.7,
+     "max": 19.06,
+     "rowsWithValue": 207,
+     "rows": 207,
+     "table": "Flame Design_Normal Flame",
+     "column": "pinit (atm)",
+     "sourceUnit": "atm"
+    }
+   ],
    "totalFileSizeBytes": 2180435304347,
    "related": [],
    "modifiedDate": "20-Nov-2025"
@@ -342,6 +389,19 @@
       "Flames Ignited",
       "Notes"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 21,
+     "max": 40,
+     "rowsWithValue": 18,
+     "rows": 18,
+     "table": "ACME BRE",
+     "column": "Oxygen Conc (percent)",
+     "sourceUnit": "percent"
     }
    ],
    "totalFileSizeBytes": 2035568427496,
@@ -471,6 +531,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 2005536295241,
    "related": [],
    "modifiedDate": "22-Jan-2025"
@@ -635,6 +696,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 950212491107,
    "related": [
     "PSI-23"
@@ -895,6 +957,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 782172126062,
    "related": [],
    "modifiedDate": "05-Jun-2025"
@@ -1026,6 +1089,19 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 13.6,
+     "max": 22.2,
+     "rowsWithValue": 129,
+     "rows": 129,
+     "table": "BASS-II",
+     "column": "Calibrated initial O2 % by vol",
+     "sourceUnit": "percent"
+    }
+   ],
    "totalFileSizeBytes": 274631106141,
    "related": [
     "PSI-26"
@@ -1113,6 +1189,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 163551372412,
    "related": [
     "PSI-107",
@@ -1190,6 +1267,30 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 17,
+     "max": 21,
+     "rowsWithValue": 87,
+     "rows": 87,
+     "table": "CFI",
+     "column": "Oxygen",
+     "sourceUnit": "fraction"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 7.35,
+     "max": 73.48,
+     "rowsWithValue": 87,
+     "rows": 87,
+     "table": "CFI",
+     "column": "Pressure",
+     "sourceUnit": "atm"
+    }
+   ],
    "totalFileSizeBytes": 718889568684,
    "related": [
     "PSI-69"
@@ -1236,6 +1337,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 41765333,
    "related": [
     "PSI-102"
@@ -1265,6 +1367,7 @@
     }
    ],
    "tables": [],
+   "conditions": [],
    "totalFileSizeBytes": 7743,
    "related": [
     "PSI-107"
@@ -1309,6 +1412,7 @@
     }
    ],
    "tables": [],
+   "conditions": [],
    "totalFileSizeBytes": 9694,
    "related": [
     "PSI-25",
@@ -1586,6 +1690,41 @@
       "Ambient Temperature (C)",
       "Flow Velocity (cm/s)"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 17,
+     "max": 30,
+     "rowsWithValue": 8,
+     "rows": 8,
+     "table": "Flex2",
+     "column": "Oxygen Mole Fraction",
+     "sourceUnit": "fraction"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 7.35,
+     "max": 44.09,
+     "rowsWithValue": 8,
+     "rows": 8,
+     "table": "Flex2",
+     "column": "Ambient Pressure (atm)",
+     "sourceUnit": "atm"
+    },
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 0.1,
+     "max": 5,
+     "rowsWithValue": 8,
+     "rows": 8,
+     "table": "Flex2",
+     "column": "Flow Velocity (cm/s)",
+     "sourceUnit": "cm/s"
     }
    ],
    "totalFileSizeBytes": 1224752113090,
@@ -1887,6 +2026,32 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 12,
+     "max": 34,
+     "rowsWithValue": 274,
+     "rows": 274,
+     "table": "FLEX",
+     "column": "O initial ambient composition; mole fraction",
+     "sourceUnit": "fraction"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 10.18,
+     "max": 44.86,
+     "rowsWithValue": 273,
+     "rows": 274,
+     "table": "FLEX",
+     "column": "Ambient pressure; mmHg",
+     "sourceUnit": "mmHg",
+     "excluded": 1,
+     "note": "One test row reads 0 mmHg, which cannot sustain a flame; it is treated as missing."
+    }
+   ],
    "totalFileSizeBytes": 923832535657,
    "related": [],
    "modifiedDate": "06-Jun-2025"
@@ -1957,6 +2122,30 @@
       "Camera 1",
       "Camera 2"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 21.5,
+     "max": 21.7,
+     "rowsWithValue": 2,
+     "rows": 4,
+     "table": "SAFFIRE-1",
+     "column": "Percent O2",
+     "sourceUnit": "percent"
+    },
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 20,
+     "max": 20,
+     "rowsWithValue": 2,
+     "rows": 4,
+     "table": "SAFFIRE-1",
+     "column": "Air Flow (cm/s)",
+     "sourceUnit": "cm/s"
     }
    ],
    "totalFileSizeBytes": 12250600201,
@@ -2044,6 +2233,30 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 21.5,
+     "max": 22.1,
+     "rowsWithValue": 9,
+     "rows": 15,
+     "table": "SAFFIRE-2",
+     "column": "Percent O2 (Note 1)",
+     "sourceUnit": "percent"
+    },
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 20,
+     "max": 20,
+     "rowsWithValue": 9,
+     "rows": 15,
+     "table": "SAFFIRE-2",
+     "column": "Air Flow (cm/s)",
+     "sourceUnit": "cm/s"
+    }
+   ],
    "totalFileSizeBytes": 16931016137,
    "related": [],
    "modifiedDate": "04-Jun-2025"
@@ -2095,6 +2308,19 @@
       "Camera 1",
       "Camera 2"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 30,
+     "max": 30,
+     "rowsWithValue": 2,
+     "rows": 2,
+     "table": "SAFFIRE-3",
+     "column": "Air Flow",
+     "sourceUnit": "cm/s"
     }
    ],
    "totalFileSizeBytes": 35210765052,
@@ -2167,6 +2393,19 @@
       "Primary mixing time (sec)",
       "Net aging time (sec)"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 0,
+     "max": 8.1,
+     "rowsWithValue": 109,
+     "rows": 109,
+     "table": "SAME-R",
+     "column": "Inlet velocity (cm/s)",
+     "sourceUnit": "cm/s"
     }
    ],
    "totalFileSizeBytes": 6308124750,
@@ -2285,6 +2524,19 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 5,
+     "max": 10,
+     "rowsWithValue": 4,
+     "rows": 8,
+     "table": "SAME",
+     "column": "Air Flow (cm/s)",
+     "sourceUnit": "cm/s"
+    }
+   ],
    "totalFileSizeBytes": 657608178,
    "related": [
     "PSI-101"
@@ -2343,6 +2595,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 72914598688,
    "related": [
     "PSI-107"
@@ -2428,6 +2681,21 @@
      ]
     }
    ],
+   "conditions": [
+    {
+     "variable": "flow",
+     "unit": "cm/s",
+     "min": 0.66,
+     "max": 85.28,
+     "rowsWithValue": 436,
+     "rows": 469,
+     "table": "Spice",
+     "column": "Air Rate (cm/s)",
+     "sourceUnit": "cm/s",
+     "excluded": 8,
+     "note": "Negative readings (as low as -5.92 cm/s) are left out: a flow speed cannot be negative."
+    }
+   ],
    "totalFileSizeBytes": 6946864573,
    "related": [],
    "modifiedDate": "02-Jun-2025"
@@ -2449,6 +2717,7 @@
    "objective": "The objective of this investigation was to use numerical simulation to explore the influence of gravity on pyrolysis smoke growth from a fundamental perspective. The intention of this effort is to quantify the differences between microgravity and Earth gravity smoke, and to identify the fluid dynamic mechanisms that cause the differences.",
    "publications": [],
    "tables": [],
+   "conditions": [],
    "totalFileSizeBytes": 264404901,
    "related": [
     "PSI-102"
@@ -2523,6 +2792,7 @@
     }
    ],
    "tables": [],
+   "conditions": [],
    "totalFileSizeBytes": 70820870,
    "related": [
     "PSI-69",
@@ -2619,6 +2889,7 @@
      ]
     }
    ],
+   "conditions": [],
    "totalFileSizeBytes": 748117,
    "related": [
     "PSI-69"
@@ -2702,6 +2973,53 @@
       "Peak burner T (C )",
       "Comments"
      ]
+    }
+   ],
+   "conditions": [
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 12,
+     "max": 85,
+     "rowsWithValue": 154,
+     "rows": 154,
+     "table": "CFI-G_Inverse Flames",
+     "column": "XO2",
+     "sourceUnit": "fraction",
+     "context": "oxidizer"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 7.18,
+     "max": 48.01,
+     "rowsWithValue": 154,
+     "rows": 154,
+     "table": "CFI-G_Inverse Flames",
+     "column": "approx p (bar)",
+     "sourceUnit": "bar"
+    },
+    {
+     "variable": "oxygen",
+     "unit": "%",
+     "min": 17.97,
+     "max": 39.97,
+     "rowsWithValue": 179,
+     "rows": 179,
+     "table": "CFI-G_Normal Flames",
+     "column": "XO2 before test",
+     "sourceUnit": "fraction"
+    },
+    {
+     "variable": "pressure",
+     "unit": "psi",
+     "min": 7.35,
+     "max": 44.09,
+     "rowsWithValue": 179,
+     "rows": 179,
+     "table": "CFI-G_Normal Flames",
+     "column": "approx p (bar)",
+     "sourceUnit": "bar"
     }
    ],
    "totalFileSizeBytes": 2085592429259,

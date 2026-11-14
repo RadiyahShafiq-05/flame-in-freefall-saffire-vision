@@ -11,6 +11,7 @@ import {
   recordedVariables, testRows, useInvestigations, years, type Area, type Family, type Investigation, type Variable,
 } from "@/lib/investigations";
 import { AreaTag, VariableTag } from "./tags";
+import ConditionsChart from "./ConditionsChart";
 
 const AREAS = Object.keys(AREA_LABEL) as Area[];
 const FIELD = "block rounded-md border border-edge-strong bg-base px-2.5 py-1.5 text-sm text-ink";
@@ -99,6 +100,8 @@ export default function Investigations() {
           ))}
         </div>
       </Card>
+
+      <ConditionsChart investigations={all} />
 
       <section aria-labelledby="list-h" className="space-y-3">
         <h2 id="list-h" className="sr-only">All investigations</h2>
