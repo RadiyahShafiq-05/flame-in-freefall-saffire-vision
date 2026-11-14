@@ -45,18 +45,20 @@ const UNAVAILABLE = { status: "not_tracked" as Status, detail: "Could not be loa
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const area = (p: number[]) => p[0] * p[1];
 
-function workflow(grids: number, others: number, a: Activity | null): Step[] {
+function workflow(gridIds: Set<string>, others: number, a: Activity | null): Step[] {
+  const grids = gridIds.size;
   const history = a?.history;
   const hits = history?.filter(h => h.success) ?? [];
   const largest = hits.reduce<HistoryItem | null>((m, h) => (!m || area(h.pattern) > area(m.pattern) ? h : m), null);
   const cal = a?.calibration;
+  const saffireModel = cal?.views_used?.some(id => gridIds.has(id));
   const reports = a?.reports;
   return [
     { name: "Dataset upload", href: "/dataset",
       ...(grids + others > 0
         ? { status: "completed", detail: [grids && `${plural(grids, "SAFFIRE grid")} available`, others && `${plural(others, "other image")}`].filter(Boolean).join(", plus ") }
         : { status: "pending", detail: "No images loaded", action: "Load the four grid images", cta: "Load images" }) },
-    { name: "Image preprocessing", href: "/analysis", status: "not_tracked", detail: "The backend does not record preprocessing runs yet" },
+    { name: "Image preprocessing", href: "/analysis", status: "not_tracked", detail: "Recorded in reports; the dashboard cannot read runs yet" },
     // The true grid size is undocumented and the grid runs past the frame, so any detected pattern is
     // a user-chosen sub-region: report it as partial, never as a completed grid detection.
     { name: "Checkerboard detection", href: "/analysis",
@@ -64,10 +66,13 @@ function workflow(grids: number, others: number, a: Activity | null): Step[] {
         : largest ? { status: "partial", detail: `Largest pattern found: ${largest.pattern.join("×")}, a sub-region; true grid size unknown` }
         : history?.length ? { status: "in_progress", detail: `${plural(history.length, "run")}, no pattern found yet`, action: "Try a smaller pattern", cta: "Open image analysis" }
         : { status: "pending", detail: "Not run yet", action: "Run checkerboard detection", cta: "Start image analysis" }) },
-    { name: "Distortion analysis", href: "/analysis", status: "not_tracked", detail: "The backend does not record distortion runs yet" },
+    { name: "Distortion analysis", href: "/analysis", status: "not_tracked", detail: "Recorded in reports; the dashboard cannot read runs yet" },
+    // A valid model from test boards says nothing about the SAFFIRE camera, which has one view per camera.
     { name: "Calibration feasibility", href: "/calibration",
       ...(a && !cal ? UNAVAILABLE
-        : cal?.status === "valid" ? { status: "completed", detail: "Valid camera model" }
+        : cal?.status === "valid" && saffireModel ? { status: "completed", detail: "Valid camera model" }
+        : cal?.status === "valid" ? { status: "failed", detail: "Only non-SAFFIRE test images calibrated; the SAFFIRE grids have one view per camera",
+            action: `Needs ${cal.min_views ?? 10} or more SAFFIRE grid photos from different angles`, cta: "Resolve calibration" }
         : cal?.status === "insufficient" ? { status: "failed", detail: cal.problems?.[0] ?? "Not enough independent views",
             action: `Needs ${cal.min_views ?? 10} or more photos of the grid from different angles`, cta: "Resolve calibration" }
         : { status: "pending", detail: "Not run yet", action: "Check calibration feasibility", cta: "Check calibration" }) },
@@ -95,7 +100,8 @@ export default function Overview() {
   // Uploads and test boards share data/raw with the SAFFIRE grids; only the grids count as the dataset.
   const images = all.filter(isSaffireGrid);
   const others = all.length - images.length;
-  const steps = workflow(images.length, others, activity);
+  const gridIds = new Set(images.map(i => i.image_id));
+  const steps = workflow(gridIds, others, activity);
   const next = live && activity ? nextStep(steps) : null;
   const count = (pick: (i: (typeof images)[number]) => boolean) => images.filter(pick).length;
   const history = activity?.history ?? [];
@@ -215,6 +221,9 @@ export default function Overview() {
             {cal && cal.status !== "not_run" ? (
               <div className="space-y-2 text-sm">
                 <StatusBadge status={cal.status === "valid" ? "completed" : "failed"} />
+                {cal.status === "valid" && !cal.views_used?.some(id => gridIds.has(id)) && (
+                  <p className="text-xs text-muted">Model of the camera behind the test images, not the SAFFIRE camera.</p>
+                )}
                 {cal.problems?.length ? (
                   <ul className="list-disc space-y-1 pl-4 text-xs text-muted">
                     {cal.problems.map(p => <li key={p}>{p}</li>)}

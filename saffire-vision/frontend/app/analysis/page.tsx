@@ -37,7 +37,8 @@ function Analysis() {
   const path = usePathname();
   const params = useSearchParams();
   const images = dataset?.images ?? [];
-  const imageId = params.get("image") ?? images.find(isSaffireGrid)?.image_id ?? images[0]?.image_id ?? "";
+  // Start on an individual grid: the combined composites only detect per panel, which this page cannot select yet.
+  const imageId = params.get("image") ?? (images.find(measuredPattern) ?? images.find(isSaffireGrid) ?? images[0])?.image_id ?? "";
   const image = images.find(i => i.image_id === imageId);
   const tab: Tab = TABS.some(t => t.id === params.get("tab")) ? params.get("tab") as Tab : "preprocess";
   const setParam = (key: string, value: string) => {
