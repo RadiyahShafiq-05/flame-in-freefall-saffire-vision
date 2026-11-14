@@ -1,18 +1,128 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { HistoryItem, Calibration } from "@/types";
+import { useDataset } from "@/lib/useDataset";
+import { typeLabel } from "@/lib/images";
+import type { ReportDetail } from "@/types";
+import PageHeader from "@/components/PageHeader";
 import Card from "@/components/Card";
+import EmptyState from "@/components/EmptyState";
+import Notice from "@/components/Notice";
+import StatusBadge from "@/components/StatusBadge";
+import FileName from "@/components/FileName";
+
+const fmtTime = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+
 export default function Reports() {
-  const [reports, setReports] = useState<string[]>([]); const [h, setH] = useState<HistoryItem[]>([]);
-  const [cal, setCal] = useState<Calibration | null>(null); const [err, setErr] = useState("");
-  const load = () => Promise.all([api.reports(), api.history(), api.calStatus()]).then(([r, hh, c]) => { setReports(r); setH(hh); setCal(c); }).catch(e => setErr(e.message));
-  useEffect(() => { load(); }, []);
-  return (<div className="space-y-5"><h1 className="text-2xl font-semibold">Reports</h1>{err && <p className="text-amber-400 text-sm">{err}</p>}
-    <button className="btn" onClick={() => api.createReport().then(load).catch(e => setErr(e.message))}>Generate report from current state</button>
-    <Card title="Reports">{reports.length === 0 ? <p className="text-sm text-gray-400">None yet.</p> :
-      <ul className="text-sm space-y-1">{reports.map(id => <li key={id}>{id} · <a className="text-accent underline" href={api.reportDownload(id, "html")}>HTML</a> · <a className="text-accent underline" href={api.reportDownload(id, "json")}>JSON</a></li>)}</ul>}</Card>
-    <Card title="Detection history">{h.length === 0 ? <p className="text-sm text-gray-400">No detection runs yet.</p> :
-      <ul className="text-sm space-y-1 text-gray-300">{h.slice().reverse().map((x, i) => <li key={i}>{x.image_id} · {x.pattern.join("×")} · {x.success ? `${x.num_corners} corners` : "not detected"}</li>)}</ul>}</Card>
-    <Card title="Calibration status"><p className="text-sm">{cal?.status ?? "…"}</p>{cal?.problems?.map(p => <p key={p} className="text-xs text-amber-400">• {p}</p>)}</Card></div>);
+  const { state } = useDataset();
+  const [reports, setReports] = useState<ReportDetail[] | null>(null);
+  const [selected, setSelected] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  // The list endpoint returns only IDs; each report is read for its time and contents.
+  const load = useCallback(() => api.reports()
+    .then(ids => Promise.allSettled(ids.map(api.report)))
+    .then(rs => {
+      const ok = rs.flatMap(r => (r.status === "fulfilled" ? [r.value] : [])).sort((a, b) => b.generated.localeCompare(a.generated));
+      setReports(ok);
+      setSelected(s => s && ok.some(r => r.report_id === s) ? s : ok[0]?.report_id ?? "");
+    })
+    .catch(e => setError(e.message)), []);
+  useEffect(() => { if (state === "live" || state === "empty") load(); }, [state, load]);
+
+  const generate = () => {
+    setBusy(true); setError("");
+    api.createReport().then(r => { setSelected(r.report_id); return load(); }).catch(e => setError(e.message)).finally(() => setBusy(false));
+  };
+
+  if (state === "offline") return (
+    <div className="space-y-6"><PageHeader title="Reports" />
+      <EmptyState title="Backend offline" body="Start the backend to generate and download reports." /></div>
+  );
+
+  const report = reports?.find(r => r.report_id === selected);
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Reports"
+        subtitle="A snapshot of the dataset, recent detections and the calibration status, saved by the backend as HTML and JSON."
+        actions={<button className="btn" onClick={generate} disabled={busy}>{busy ? "Generating…" : "Generate report"}</button>} />
+      {error && <Notice tone="warn" title="Request failed">{error}</Notice>}
+
+      {reports && reports.length === 0 ? (
+        <EmptyState title="No reports yet" body="Generate one to capture the current dataset, detection runs and calibration status." />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
+          <nav aria-label="Reports" className="space-y-1">
+            {(reports ?? []).map(r => (
+              <button key={r.report_id} onClick={() => setSelected(r.report_id)} aria-current={r.report_id === selected ? "true" : undefined}
+                className={`block w-full rounded-md border px-3 py-2 text-left transition-colors ${r.report_id === selected ? "border-accent/50 bg-accent/10" : "border-edge hover:border-edge-strong"}`}>
+                <span className={`num block text-sm ${r.report_id === selected ? "font-medium text-accent" : "text-ink"}`}>{fmtTime(r.generated)}</span>
+                <span className="num block font-mono text-xs text-faint">{r.report_id}</span>
+              </button>
+            ))}
+          </nav>
+
+          {report && (
+            <article aria-labelledby="report-h" className="min-w-0 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="report-h" className="text-base font-semibold text-ink">Report from {fmtTime(report.generated)}</h2>
+                <div className="flex gap-2">
+                  <a className="btn-ghost text-xs" href={api.reportDownload(report.report_id, "html")}>Download HTML</a>
+                  <a className="btn-ghost text-xs" href={api.reportDownload(report.report_id, "json")}>Download JSON</a>
+                </div>
+              </div>
+
+              <Card title={`Dataset · ${report.dataset.count} images`} level={3}>
+                <table className="w-full text-left text-sm">
+                  <thead className="text-xs text-muted"><tr><th className="py-1 pr-3 font-medium">File</th><th className="py-1 pr-3 font-medium">Size</th><th className="py-1 font-medium">Type</th></tr></thead>
+                  <tbody>{report.dataset.images.map(i => (
+                    <tr key={i.image_id} className="border-t border-edge">
+                      <td className="py-1.5 pr-3"><FileName name={i.filename} className="text-xs text-ink" /></td>
+                      <td className="num whitespace-nowrap py-1.5 pr-3 font-mono text-xs text-muted">{i.width}×{i.height}</td>
+                      <td className="py-1.5 text-xs text-muted">{typeLabel(i)}</td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </Card>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <Card title={`Checkerboard detections · ${report.detections.length}`} level={3}>
+                  {report.detections.length ? (
+                    <ol className="space-y-2">{report.detections.map((d, i) => (
+                      <li key={i} className="space-y-0.5">
+                        <span className={`num block text-xs ${d.success ? "text-accent" : "text-muted"}`}>
+                          {d.pattern.join("×")} · {d.success ? `${d.num_corners} corners` : "not found"}
+                        </span>
+                        <FileName name={d.image_id} className="block text-xs text-muted" />
+                      </li>
+                    ))}</ol>
+                  ) : <p className="text-sm text-muted">No detection runs at the time of this report.</p>}
+                </Card>
+                <Card title="Calibration" level={3}>
+                  {report.calibration.status === "not_run" ? <p className="text-sm text-muted">Not run at the time of this report.</p> : (
+                    <div className="space-y-2 text-sm">
+                      <StatusBadge status={report.calibration.status === "valid" ? "completed" : "failed"} />
+                      {report.calibration.rms_reprojection_error_px !== undefined && (
+                        <p className="num text-muted">RMS reprojection error <span className="font-mono text-ink">{report.calibration.rms_reprojection_error_px.toFixed(3)} px</span>
+                          {report.calibration.views_used && ` · ${report.calibration.views_used.length} views used`}</p>
+                      )}
+                      {report.calibration.problems?.length ? <ul className="list-disc space-y-1 pl-5 text-xs text-warn">{report.calibration.problems.map(p => <li key={p}>{p}</li>)}</ul> : null}
+                    </div>
+                  )}
+                </Card>
+                <Card title="Distortion analysis" level={3}>
+                  <p className="text-sm text-muted">Not included in backend reports yet. Measure it on the Image Analysis page.</p>
+                </Card>
+                <Card title="Processing and limitations" level={3}>
+                  <p className="text-sm text-muted">{report.processing}</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted">{report.limitations.map(l => <li key={l}>{l}</li>)}</ul>
+                </Card>
+              </div>
+            </article>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

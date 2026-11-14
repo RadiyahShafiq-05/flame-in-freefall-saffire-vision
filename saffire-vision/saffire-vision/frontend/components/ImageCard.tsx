@@ -1,5 +1,6 @@
 import type { ImageInfo } from "@/types";
 import { api } from "@/lib/api";
+import { typeLabel } from "@/lib/images";
 import FileName from "./FileName";
 
 type Img = Pick<ImageInfo, "image_id" | "filename" | "width" | "height" | "kind" | "variant">;
@@ -21,8 +22,7 @@ export default function ImageCard({ image, loaded, compact }: { image: Img; load
       <div className="flex flex-1 flex-col gap-2 p-3">
         <FileName name={image.filename} className="text-xs text-ink" />
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="rounded border border-edge px-1.5 py-0.5 text-muted">{image.variant === "mono" ? "Monochrome" : "Color"}</span>
-          <span className="rounded border border-edge px-1.5 py-0.5 text-muted">{image.kind === "combined" ? "Combined" : "Individual"}</span>
+          {typeLabel(image).split(" · ").map(t => <span key={t} className="rounded border border-edge px-1.5 py-0.5 text-muted">{t}</span>)}
           <span className="num font-mono text-faint">{image.width}×{image.height}</span>
         </div>
         <div className="mt-auto pt-1">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useDataset } from "@/lib/useDataset";
 import { EXPECTED_IMAGES, SAFFIRE_I } from "@/lib/expectedDataset";
+import { isSaffireGrid } from "@/lib/images";
 import type { Calibration, HistoryItem, Report } from "@/types";
 import Card from "@/components/Card";
 import StatCard from "@/components/StatCard";
@@ -44,7 +45,7 @@ const UNAVAILABLE = { status: "not_tracked" as Status, detail: "Could not be loa
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const area = (p: number[]) => p[0] * p[1];
 
-function workflow(imageCount: number, a: Activity | null): Step[] {
+function workflow(grids: number, others: number, a: Activity | null): Step[] {
   const history = a?.history;
   const hits = history?.filter(h => h.success) ?? [];
   const largest = hits.reduce<HistoryItem | null>((m, h) => (!m || area(h.pattern) > area(m.pattern) ? h : m), null);
@@ -52,8 +53,8 @@ function workflow(imageCount: number, a: Activity | null): Step[] {
   const reports = a?.reports;
   return [
     { name: "Dataset upload", href: "/dataset",
-      ...(imageCount > 0
-        ? { status: "completed", detail: `${plural(imageCount, "image")} available` }
+      ...(grids + others > 0
+        ? { status: "completed", detail: [grids && `${plural(grids, "SAFFIRE grid")} available`, others && `${plural(others, "other image")}`].filter(Boolean).join(", plus ") }
         : { status: "pending", detail: "No images loaded", action: "Load the four grid images", cta: "Load images" }) },
     { name: "Image preprocessing", href: "/analysis", status: "not_tracked", detail: "The backend does not record preprocessing runs yet" },
     // The true grid size is undocumented and the grid runs past the frame, so any detected pattern is
@@ -90,8 +91,11 @@ export default function Overview() {
   const live = state === "live" || state === "empty";
   const activity = useActivity(live);
   const cal = activity?.calibration;
-  const images = dataset?.images ?? [];
-  const steps = workflow(images.length, activity);
+  const all = dataset?.images ?? [];
+  // Uploads and test boards share data/raw with the SAFFIRE grids; only the grids count as the dataset.
+  const images = all.filter(isSaffireGrid);
+  const others = all.length - images.length;
+  const steps = workflow(images.length, others, activity);
   const next = live && activity ? nextStep(steps) : null;
   const count = (pick: (i: (typeof images)[number]) => boolean) => images.filter(pick).length;
   const history = activity?.history ?? [];
@@ -160,7 +164,8 @@ export default function Overview() {
             source={<a className="link" href={SAFFIRE_I.psiUrl} target="_blank" rel="noreferrer">{SAFFIRE_I.accession} on NASA PSI (opens in new tab)</a>} />
           <StatCard label="Image files"
             value={live ? <span className="num"><span className="text-accent">{images.length}</span> of {EXPECTED_IMAGES.length} loaded</span> : `${EXPECTED_IMAGES.length} expected`}
-            hint={state === "offline" ? "Load status unknown while the backend is offline" : state === "loading" ? "Checking…" : undefined}
+            hint={state === "offline" ? "Load status unknown while the backend is offline" : state === "loading" ? "Checking…"
+              : others ? `Plus ${plural(others, "other image")} that are not SAFFIRE data` : undefined}
             source={live ? "From /api/dataset" : "From the expected file list"} />
           <StatCard label="Image types" value="Color and monochrome"
             hint={live
