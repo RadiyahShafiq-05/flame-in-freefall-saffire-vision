@@ -110,16 +110,40 @@ function conditions(acc, tableName, header, body) {
     };
   });
 }
+
+// Moon-base atmosphere from the challenge brief: 30% oxygen or more at 10.2 psi or less. Counts tests (rows) whose
+// ambient values meet it; a row with several values only counts when every value does. null: the table does not
+// record that ambient variable, so the count is unknown, not zero.
+const MOON_BASE = { oxygen: v => v >= 30, pressure: v => v <= 10.2 };
+function moonBaseTests(acc, tableName, header, body) {
+  const all = CONDITIONS[acc]?.[tableName] ?? [];
+  const specs = all.filter(s => s.variable in MOON_BASE && !s.context);
+  if (!specs.length) return null;
+  const burnerOxygen = all.some(s => s.context === "oxidizer");
+  const meets = (row, variable) => {
+    const spec = specs.find(s => s.variable === variable);
+    if (!spec) return null;
+    const vs = cellValues(row[header.findIndex(h => clean(h) === spec.column)] ?? "", spec).filter(spec.keep ?? (() => true));
+    return vs.length > 0 && vs.every(MOON_BASE[variable]);
+  };
+  const count = variable => specs.some(s => s.variable === variable) ? body.filter(r => meets(r, variable)).length : null;
+  const both = specs.length === 2 ? body.filter(r => meets(r, "oxygen") && meets(r, "pressure")).length : null;
+  return { table: tableName, rows: body.length, oxygen: count("oxygen"), pressure: count("pressure"), both, ...(burnerOxygen && { burnerOxygen }) };
+}
+
 const accessions = readdirSync(src).filter(d => /^PSI-\d+$/.test(d)).sort((a, b) => +a.slice(4) - +b.slice(4));
 
 const investigations = accessions.map(acc => {
   const dir = join(src, acc);
   const m = JSON.parse(readFileSync(join(dir, "investigation.json"), "utf8"));
   const testConditions = [];
+  const moonBase = [];
   const tables = readdirSync(dir).filter(f => f.endsWith(".csv")).sort().map(f => {
     const [header = [], ...body] = parseCsv(readText(join(dir, f)));
     const name = clean(f.replace(/\.csv$/, "").replace(/^PSI-\d+_Experimental table_/, ""));
     testConditions.push(...conditions(m.accession, name, header, body));
+    const mb = moonBaseTests(m.accession, name, header, body);
+    if (mb) moonBase.push(mb);
     return { name, rows: body.length, columns: header.map(clean).filter(Boolean) };
   });
   return {
@@ -137,9 +161,13 @@ const investigations = accessions.map(acc => {
     doi: clean(m.doi),
     license: clean(m.licenseIdentifier),
     objective: (m.objective ?? "").trim(),
+    approach: (m.approach ?? "").trim(),
+    hypothesis: (m.hypothesis ?? "").trim(),
+    impacts: (m.researchImpacts ?? "").trim(),
     publications: (m.publications ?? []).map(p => ({ title: clean(p.title), authors: clean(p.authorList), doi: clean(p.doi) })),
     tables,
     conditions: testConditions,
+    moonBase,
     totalFileSizeBytes: m.totalFileSize ?? 0,
     related: clean(m.related_glds).split(",").map(clean).filter(Boolean),
     modifiedDate: clean(m.modifiedDate),

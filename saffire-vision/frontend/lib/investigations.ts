@@ -8,13 +8,37 @@ export interface Condition {
   variable: Variable; unit: string; min: number; max: number; rowsWithValue: number; rows: number;
   table: string; column: string; sourceUnit: string; context?: "oxidizer"; excluded?: number; note?: string;
 }
+// Tests in one table at the brief's Moon-base atmosphere; null means the table does not record that ambient variable.
+// burnerOxygen: an inverse-flame table, whose oxygen is the burner stream's, so it has no ambient oxygen count.
+export interface MoonBaseTests { table: string; rows: number; oxygen: number | null; pressure: number | null; both: number | null; burnerOxygen?: boolean }
 export interface Investigation {
   accession: string; acronym: string; title: string; subResearchArea: string; projectType: string;
   hardware: string; hardwareLink: string; platform: string; managingCenter: string;
   startDate: string; endDate: string; doi: string; license: string; objective: string;
+  approach: string; hypothesis: string; impacts: string; moonBase: MoonBaseTests[];
   publications: Publication[]; tables: ExperimentTable[]; conditions: Condition[]; totalFileSizeBytes: number; related: string[]; modifiedDate: string;
 }
 interface Catalog { source: string; generated: string; investigations: Investigation[] }
+
+// Written by scripts/generate-insights.mjs; every claim lists the source passages it was checked against.
+export interface Claim { text: string; sources: string[] }
+export interface Insight {
+  model: string; summary: Claim | null; fireSafety: Claim[]; habitat: Claim | null; caveats: Claim[];
+  dropped: { text: string; reason: string }[]; sources: Record<string, { label: string; text: string }>;
+}
+interface InsightFile { models: string[]; provider: string; generated: string; reviewed: boolean; insights: Record<string, Insight> }
+
+// A missing file is a normal state (insights not generated yet), so it resolves to "missing" rather than an error.
+export function useInsights() {
+  const [file, setFile] = useState<InsightFile | "missing" | null>(null);
+  useEffect(() => {
+    fetch("/data/insights.json")
+      .then(r => (r.ok ? r.json() : "missing"))
+      .then(setFile)
+      .catch(() => setFile("missing"));
+  }, []);
+  return file;
+}
 
 // Built by scripts/build-investigations.mjs from PSI metadata; served as a static file so it can be
 // regenerated without a code change.
