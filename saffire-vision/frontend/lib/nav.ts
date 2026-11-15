@@ -7,6 +7,7 @@ export const NAV: NavItem[] = [
   { href: "/analysis", label: "Image Analysis", group: "module", icon: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" },
   { href: "/calibration", label: "Camera Calibration", group: "module", icon: "M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 100 8 4 4 0 000-8z" },
   { href: "/reports", label: "Reports", group: "module", icon: "M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" },
+  { href: "/insights", label: "Fire Safety Insights", group: "context", icon: "M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6zM9 12l2 2 4-4" },
   { href: "/investigations", label: "Combustion Investigations", group: "context", icon: "M12 3c3 4 5 6.5 5 10a5 5 0 01-10 0c0-2 1-3.5 2-5 .5 2 1.5 3 3 3-1-3-.5-5.5 0-8z" },
   { href: "/about", label: "About Project", group: "context", icon: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01" },
 ];
