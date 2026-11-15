@@ -144,8 +144,9 @@ The four SAFFIRE-1 grid JPEGs are included under `data/raw/` so the app runs aft
 
 - **Fire Safety Insights text:** written by Google Gemini models (`gemini-4-hydrogen` for 21 investigations, `gemini-3.8-flash` for 3) through the Gemini API in Google AI Studio, from PSI record text only. `scripts/generate-insights.mjs` removes any statement that cites no source passage, or uses a number its cited passages do not contain. One more statement was removed by hand as unsupported. The team has not yet reviewed the rest, and the app labels every insight as written by SI.
 - **Frontend code:** written with Claude (Anthropic) in Claude Code, including the insight generator script. The team directed the work and reviewed each change before merging.
-- **Backend and flame-frame check:** [backend team: name the tools used, or write "none"].
-- **Not SI:** the Moon-base test counts, test-condition ranges, grid checks and flame-pixel marking are computed directly from NASA data. No SI model runs in the backend or in the browser.
+- **Research Assistant answers:** when `GEMINI_API_KEY` is set, the backend sends the retrieved passages to Google Gemini (`gemini-2.5-flash`), and unsupported citations or numbers are removed before an answer is shown. Without a key it returns the passages only.
+- **Backend code:** the Research Assistant was written with GitHub Copilot, and the flame-frame check with Cursor, as their commits record.
+- **Not SI:** the Moon-base test counts, test-condition ranges, grid checks and flame-pixel marking are computed directly from NASA data, with no SI model involved.
 
 ## License
 
