@@ -147,6 +147,11 @@ class CalibrationResponse(BaseModel):
     timestamp: Optional[str] = None
     feasibility: Optional[Feasibility] = None
 
+class PreprocessComparisonRequest(BaseModel):
+    image_id: str
+    cols: int = Field(..., ge=3, le=60, description="Same inner-corner pattern used on the original and every saved copy.")
+    rows: int = Field(..., ge=3, le=60)
+
 class ReportDocument(BaseModel):
     report_id: str
     generated: str
@@ -159,3 +164,4 @@ class ReportDocument(BaseModel):
     output_files: list[str]
     processing: str
     limitations: list[str]
+    preprocess_comparison: Optional[dict[str, Any]] = None

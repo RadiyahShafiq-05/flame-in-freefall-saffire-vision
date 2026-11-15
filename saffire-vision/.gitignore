@@ -1,8 +1,11 @@
 __pycache__/
 *.pyc
+.pytest_cache/
+.mypy_cache/
 .venv/
 node_modules/
 .next/
+*.log
 .env*
 !.env.example
 data/raw/*
@@ -10,5 +13,10 @@ data/raw/*
 !data/raw/SAFFIRE-1_*.jpg
 data/processed/*
 data/metadata/*
-outputs/*/*
+# Generated run output, including nested flame-frame folders.
+outputs/**
+!outputs/**/
+!outputs/**/.gitkeep
+# Downloaded PSI text and tables. The app serves the built catalog in frontend/public/data.
+Nasa_Space_Data/
 !**/.gitkeep

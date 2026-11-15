@@ -6,6 +6,7 @@ METADATA = ROOT / "data" / "metadata"
 OUT_DETECTED = ROOT / "outputs" / "detected"
 OUT_UNDISTORTED = ROOT / "outputs" / "undistorted"
 OUT_REPORTS = ROOT / "outputs" / "reports"
+OUT_FLAME = ROOT / "outputs" / "flame"
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
 MAX_UPLOAD_MB = 50
 MIN_CALIBRATION_VIEWS = 10  # configurable per request; a common practical minimum, not a NASA value
@@ -17,7 +18,7 @@ EXPECTED_RAW_FILES = (
     "SAFFIRE-1_DistortionGrids-30mmBlock_Combined_1280x920_color.jpg",
     "SAFFIRE-1_DistortionGrids-30mmBlock_Combined_1280x920_mono.jpg",
 )
-for d in (RAW, PROCESSED, METADATA, OUT_DETECTED, OUT_UNDISTORTED, OUT_REPORTS):
+for d in (RAW, PROCESSED, METADATA, OUT_DETECTED, OUT_UNDISTORTED, OUT_REPORTS, OUT_FLAME):
     d.mkdir(parents=True, exist_ok=True)
 
 import os

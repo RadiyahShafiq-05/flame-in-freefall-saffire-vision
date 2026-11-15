@@ -13,6 +13,27 @@ export interface Calibration { status: "not_run" | "insufficient" | "valid"; pro
   views_used?: string[]; views_failed?: string[]; image_size?: [number, number]; units?: string; timestamp?: string;
   rms_reprojection_error_px?: number; camera_matrix?: number[][]; distortion_coefficients?: number[]; provenance?: string }
 export interface Report { report_id: string; generated: string }
+export interface ComparisonCopy {
+  operation: string; status: string; num_corners?: number; rms_px?: number | null; changed?: boolean; improved?: boolean;
+}
+export interface PreprocessComparison {
+  image_id?: string; pattern?: number[]; statement: string; changed: boolean; improved: boolean;
+  original?: { num_corners: number; rms_px?: number | null };
+  copies?: ComparisonCopy[];
+}
 export interface ReportDetail extends Report { dataset: Dataset; preprocessing: PreprocessStep[]; detections: HistoryItem[];
-  distortion: DistortionStep[]; calibration: Calibration; processing: string; limitations: string[] }
+  distortion: DistortionStep[]; calibration: Calibration; processing: string; limitations: string[];
+  preprocess_comparison?: PreprocessComparison | null }
 export interface HistoryItem { image_id: string; success: boolean; pattern: number[]; num_corners: number; message: string }
+export interface FlameFrameResult {
+  experiment_name: string; source: string; filename: string;
+  width: number; height: number; flame_pixels: number; image_pixels: number;
+  coverage_percent: number; label: string;
+  original_url: string; overlay_url: string; processed_url: string;
+}
+export interface ProcessLogItem {
+  type: "preprocess" | "distortion" | "preprocess_comparison" | "flame_frame"; image_id: string; timestamp?: string;
+  operation?: string; saved_file?: string; cols?: number; rows?: number; panel?: number | null;
+  detection_success?: boolean; geometry?: Distortion["geometry"];
+  statement?: string; changed?: boolean; improved?: boolean;
+}

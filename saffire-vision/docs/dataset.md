@@ -1,7 +1,7 @@
 # Dataset
 
 ## If the JPEGs are not in the folder
-The four files below are not committed (see `.gitignore`). The API still starts. `GET /api/dataset` then returns `count: 0` and lists every missing name in `missing_expected_files`.
+The four SAFFIRE-1 grid JPEGs are included in `data/raw/`. Do not edit their pixels. If they are missing, the API still starts. `GET /api/dataset` then returns `count: 0` and lists every missing name in `missing_expected_files`.
 
 1. Unzip `SAFFIRE-1_F1C1_DistortionGrids_1280x920_originals.zip`.
 2. Copy the four JPEGs into `data/raw/`.

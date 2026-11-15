@@ -80,9 +80,9 @@ export default function ConditionsChart({ investigations }: { investigations: In
   return (
     <Card title="Test conditions across investigations"
       action={
-        <div role="group" aria-label="Condition shown" className="flex rounded-md border border-edge-strong p-0.5">
+        <div role="radiogroup" aria-label="Condition" className="flex rounded-md border border-edge-strong p-0.5">
           {VARIABLES.map(v => (
-            <button key={v} aria-pressed={variable === v} onClick={() => setVariable(v)}
+            <button key={v} role="radio" aria-checked={variable === v} onClick={() => setVariable(v)}
               className={`rounded px-3 py-1 text-xs transition-colors ${variable === v ? "bg-accent/15 font-medium text-accent" : "text-muted hover:text-ink"}`}>
               {VARIABLE_LABEL[v]}
             </button>

@@ -9,7 +9,7 @@ const RULES = [
   "No camera matrix or distortion coefficient is shown unless a calibration actually succeeded.",
   "Color and monochrome copies, and combined composites, are not treated as independent calibration views.",
   "A detected sub-pattern (for example 6×4) is a partial region, not the true grid size.",
-  "The distortion-grid images contain no flame data; nothing here predicts fire behaviour.",
+  "The distortion-grid images contain no flame data. Fire Safety Insights restate PSI records, and Flame Frames reports pixel area only. Neither predicts fire behaviour.",
 ];
 
 export default function About() {
@@ -37,8 +37,9 @@ export default function About() {
           </Card>
           <Card title="Where this module fits" level={3}>
             <p className="text-sm leading-relaxed text-muted">
-              SAFFIRE Vision checks camera geometry first. Next: SAFFIRE-II flame frames, the experiment tables, and an
-              overview of NASA&apos;s other combustion investigations.
+              SAFFIRE Vision checks the SAFFIRE-1 camera grids, lists the PSI combustion investigations and their test
+              conditions, and shows a fire-safety reading of each record. Flame Frames marks flame-colored pixels in an
+              uploaded still. Those marks are approximate, and the insights are not measured burn results.
             </p>
           </Card>
         </div>
@@ -51,7 +52,8 @@ export default function About() {
             <p className="text-sm leading-relaxed text-muted">
               The challenge asks for a dashboard that makes decades of NASA microgravity combustion results easier to find,
               compare and interpret for spacecraft and habitat fire safety. Measurements from experiment video depend on
-              knowing how each camera distorts the image, so this module starts there, with the SAFFIRE-1 distortion grids.
+              knowing how each camera distorts the image. This app starts with the SAFFIRE-1 distortion grids, then adds
+              the PSI investigation catalogue, a fire-safety reading of each record, and an approximate flame-region check.
             </p>
           </Card>
           <Card title="How we handle data" level={3}>

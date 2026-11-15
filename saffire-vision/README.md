@@ -1,34 +1,69 @@
 # SAFFIRE Vision
-Microgravity experiment image calibration & analysis platform: the first module of **Flame in Freefall** (NASA Space Apps 2026), our broader spacecraft fire-safety project. This distortion-grid module is an initial image-analysis component, not a fire-prediction system. Independent project, not endorsed by NASA.
 
-## Overview & motivation
-SAFFIRE experiments were imaged by cameras whose optics distort geometry. Quantitative analysis of flame imagery first needs a trustworthy understanding of that distortion. This platform processes SAFFIRE-1 distortion-grid images (not flame data) and is built so flame imagery can be added later.
+SAFFIRE Vision is the working app for **Flame in Freefall**, a NASA Space Apps Challenge 2026 project about spacecraft fire safety. It reads NASA Physical Sciences Informatics (PSI) combustion records and checks the SAFFIRE-1 camera grids that were actually supplied.
 
-## Dataset
-See [docs/dataset.md](docs/dataset.md). Four SAFFIRE-1 F1C1 grid JPEGs (two 1280×920, two 2565×920 combined). Each combined image holds two 1280-px panels; one is the F1C1 image again, the other appears to be camera F1C2 (label read by eye). SAFFIRE-II frames and the experiment table were also supplied but are not yet integrated.
+This is an independent project. It is not a NASA product and is not endorsed by NASA.
 
-## Objectives
-Inspect images; detect checkerboard corners; report observable grid geometry; calibrate and undistort **only** when valid; produce honest reports.
+The app does not predict fire behaviour, estimate temperature, or invent a camera model. Every number on screen is either copied from a NASA file or calculated from one. When a value is missing, the screen says it is not available.
 
-## Features
-Dataset inventory · preprocessing · configurable chessboard detection with subpixel refinement · geometry stats · OpenCV calibration with input validation · JSON/HTML reports · dashboard UI.
+## What you can do
+
+| Screen | What it shows |
+|---|---|
+| Overview | Whether the four grids, the latest preprocessing check, and calibration are usable |
+| Dataset Explorer | The four SAFFIRE-1 distortion-grid images, including the combined composites |
+| Image Analysis | Preprocessing, a before/after corner comparison, checkerboard detection, and pixel geometry |
+| Camera Calibration | Why these images cannot calibrate a camera. No camera matrix is saved |
+| Reports | HTML and JSON reports of the checks above |
+| Combustion Investigations | 24 PSI combustion investigations, with test conditions and publications |
+| Fire Safety Insights | A reading of each PSI record for habitat fire safety. Written by the model, not yet reviewed, and not a measured burn result |
+| Flame Frames | Flame-colored pixels in one uploaded color still. Pixel count and percent of the image only |
+| About | How this module fits the challenge |
+
+## What this dataset can support
+
+The four files in `data/raw/` are SAFFIRE-1 distortion grids, not flame frames.
+
+- F1C1 color and F1C1 mono are two copies of one scene. They count as one camera view.
+- Each combined image is two panels. One panel matches F1C1. The other looks like F1C2. The camera name on that panel was read from the picture, not from a verified label file.
+- The largest detected pattern is 21×11 (231 corners) on F1C1 and 20×10 on the other panel. The board continues outside the frame, so this is a partial region. The true grid size is not known.
+- Square size in millimetres is not confirmed, so geometry stays in pixels. Residual RMS is a fit of that partial pattern, not a camera model.
+- OpenCV calibration needs at least 10 independent views of one camera. These files do not provide that, so calibration stays blocked and no camera matrix is written.
+
+Preprocessing is compared with the original on the same 21×11 pattern. A step counts as an improvement only when it finds more corners, or the same corners with residual RMS lower by more than 0.01 px. On the current F1C1 color image, grayscale matches the original. Contrast and denoise find no corners.
+
+## Flame Frames
+
+Flame Frames is a color rule on one uploaded still. It marks warm, red, and blue flame-colored pixels, and white-hot pixels only when they sit next to that color. Green illumination is left out. The result is flame pixels, image pixels, and coverage percent.
+
+The label on the page is the limit of the tool: **approximate visual detection, not a validated fire measurement.** It does not report millimetres or temperature. A poster that contains many flames is one measurement of the whole file, not a time series. Dim flames, bright rooms, smoke, char, and objects of a similar color can be missed or marked by mistake.
+
+## Fire Safety Insights
+
+The investigation pages and the Fire Safety Insights page use `frontend/public/data/investigations.json` and `frontend/public/data/insights.json`.
+
+The investigation catalogue is built from PSI combustion records: objectives, methods, test-condition tables, and publications. Oxygen in an inverse-flame burner stream is kept separate from the air around the sample.
+
+Each insight restates those PSI aims and methods in fire-safety language. The file is marked not yet reviewed. It is not a measured result from a burn. Regenerating it needs a `GEMINI_API_KEY` in a local `.env` file, which is never committed:
+
+```powershell
+cd frontend
+$env:GEMINI_API_KEY = "<your key>"
+node scripts/generate-insights.mjs
+```
+
+The checked-in `insights.json` is enough to run the pages. You do not need a key unless you want to rewrite the insights.
 
 ## Stack
-Python 3.11+, FastAPI, OpenCV, NumPy, Pillow, Pandas, Pydantic · Next.js, React, TypeScript, Tailwind, Recharts · Pytest. No GPU.
 
-## Research gap
-Stated as a hypothesis to validate, not a finding; see [docs/research_gap.md](docs/research_gap.md).
+Python 3.11 or newer, FastAPI, OpenCV (headless), NumPy, Pillow, Pandas, Pydantic, Pytest, httpx. Next.js 14, React 18, TypeScript, Tailwind, Recharts. No GPU.
 
-## Setup and run locally (Windows 10/11)
+## Run locally on Windows
 
-### Prerequisites
-- **Python 3.11+** ([python.org](https://www.python.org/downloads/); tick "Add python.exe to PATH"). Check: `py -3.11 --version`
-- **Node.js 18+** with npm ([nodejs.org](https://nodejs.org/)). Check: `node --version`
-- The four SAFFIRE-1 images unzipped into `data/raw/` (originals are never modified). They are not committed to git. Unzip `SAFFIRE-1_F1C1_DistortionGrids_1280x920_originals.zip` and copy the four `.jpg` files into `data/raw/` with their names unchanged. If they are missing the API still starts: `GET /api/dataset` returns `count: 0` and lists the missing names, and the real-data tests are skipped.
+You need Python 3.11+ and Node.js 18+. Use two PowerShell windows. Commands below start in this `saffire-vision` folder.
 
-You will need **two PowerShell windows**: one for the backend, one for the frontend.
+### Backend
 
-### 1. Backend (FastAPI), terminal 1
 ```powershell
 cd backend
 py -3.11 -m venv .venv
@@ -36,48 +71,58 @@ py -3.11 -m venv .venv
 pip install -r requirements.txt
 python run.py
 ```
-If activation is blocked, run `Set-ExecutionPolicy -Scope Process Bypass` first, then activate again.
 
-The API runs at http://127.0.0.1:8000, with interactive Swagger docs at http://127.0.0.1:8000/docs. Check it with http://127.0.0.1:8000/api/health, which should return `{"status":"ok"}`.
+If activation is blocked, run `Set-ExecutionPolicy -Scope Process Bypass` in that window, then activate again.
 
-Run the tests (same activated environment, from `backend/`): `python -m pytest`. Tests that need the NASA images are skipped when they are not in `data/raw/`.
+The API is at http://127.0.0.1:8000. Swagger is at http://127.0.0.1:8000/docs. http://127.0.0.1:8000/api/health should return `{"status":"ok"}`.
 
-With the backend running and the images in `data/raw/`, an end-to-end check over real HTTP (from the project root): `python scripts/smoke_test.py`. It prints each endpoint's result and writes overlays and a report under `outputs/`.
+From `backend/` with the virtual environment active:
 
-### 2. Frontend (Next.js), terminal 2
+```powershell
+python -m pytest
+```
+
+From this folder, with the API already running:
+
+```powershell
+python scripts/smoke_test.py
+```
+
+### Frontend
+
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-Open http://localhost:3000. For a production build instead: `npm run build`, then `npm start`.
 
-### How the two connect
-The browser only talks to Next.js. Requests to `/api/*` and `/outputs/*` are proxied to the backend at `BACKEND_URL` (default `http://127.0.0.1:8000`), so no extra configuration is needed when both run on their default ports. If the frontend shows "Backend unreachable", confirm terminal 1 is running.
+Open http://127.0.0.1:3000. The browser talks only to Next.js. `/api` and `/outputs` are proxied to `BACKEND_URL` (default `http://127.0.0.1:8000`).
 
-### Optional configuration
-Defaults work out of the box. To override, set environment variables in the terminal before starting each process (see `.env.example` for all names), for example:
-```powershell
-$env:BACKEND_PORT = "8001"      # backend terminal, before python run.py
-$env:BACKEND_URL = "http://127.0.0.1:8001"   # frontend terminal, before npm run dev
-```
-`CORS_ORIGINS` (backend) is only needed if a browser calls the backend directly rather than through the Next.js proxy.
+Copy `.env.example` to `.env` only when you need to change a port or add a model key. `.env` is gitignored.
 
 ## API
-`GET /api/health` · `GET /api/dataset` · `GET /api/images[/{id}]` · `GET /api/images/{id}/panels` · `POST /api/images/upload` · `POST /api/analysis/{preprocess,detect-checkerboard,distortion}` · `POST /api/calibration/run` · `GET /api/calibration/status` · `POST /api/reports` · `GET /api/reports/{id}[/download?format=html|json]`. Extras: `GET /api/images/{id}/file`, `GET /api/images/{id}/panels`, `GET /api/analysis/history`. Detection and distortion accept an optional `panel`; preprocess accepts `response_format: "json"`.
 
-Request and response fields, error bodies, and the PNG preprocess contract are in [docs/backend_api.md](docs/api.md). `POST /api/analysis/preprocess` returns `image/png` (header `X-Processed-File`) by default because the frontend reads a blob; `response_format: "json"` returns metadata and an `output_url`. Other analysis endpoints return JSON. Additive fields (`channels`, `missing_expected_files`, `homography_residual`, `feasibility`) do not remove the fields the current frontend reads.
+- `GET /api/health`
+- `GET /api/dataset`
+- `GET /api/images`, `GET /api/images/{id}`, `GET /api/images/{id}/file`, `GET /api/images/{id}/panels`
+- `POST /api/images/upload`
+- `POST /api/analysis/preprocess`
+- `POST /api/analysis/preprocess-comparison`
+- `POST /api/analysis/detect-checkerboard`
+- `POST /api/analysis/distortion`
+- `POST /api/analysis/flame-frame`
+- `GET /api/analysis/history`, `GET /api/analysis/log`
+- `POST /api/calibration/run`, `GET /api/calibration/status`
+- `POST /api/reports`, `GET /api/reports`, `GET /api/reports/{id}`, `GET /api/reports/{id}/download?format=html|json`
 
-## Example workflow
-1. Dataset Explorer: confirm 4 images. 2. Image Analysis: pick the 1280×920 image, use pattern 21×11 (20×10 for the left panel of a combined image), inspect the overlay. 3. Calibration: shows why 4 images can't calibrate; upload ≥10 independent board views to proceed. 4. `POST /api/reports` and download.
+Field notes are in [docs/backend_api.md](docs/backend_api.md). Dataset measurements are in [docs/dataset.md](docs/dataset.md).
 
-## Limitations
-- The grid fills the frame; OpenCV needs the whole pattern, so only the central region detects (21×11 on F1C1, 20×10 on the left panel of the combined images). The true board size and square size are undocumented here and are never assumed. A homography residual on a partial pattern is not a camera model.
-- Color/mono copies and the right panel of the combined images are duplicates of the F1C1 image. The left panel appears to be a different camera (F1C2). Calibration is not possible with this data: no camera has more than one view.
-- No flame, temperature, or fire-behaviour conclusions. The backend was tested on Linux; the Windows start-up has not been run on Windows by the author of this change. The frontend was not touched or run.
+## What is not in git
 
-## Future work
-Panel separation for combined images; partial-grid (ChArUco/dot) methods; SAFFIRE-II flame frames; experiment-table ingestion; FLEX / BASS-II modules.
+`.env`, the Python virtual environment, `node_modules`, `.next`, generated `outputs/`, `data/processed/`, `data/metadata/`, and the downloaded `Nasa_Space_Data/` text dump. The app serves the built catalogue in `frontend/public/data/` instead of that dump.
+
+The four SAFFIRE-1 grid JPEGs are included under `data/raw/` so the app runs after clone. Do not edit their pixels. Other originals stay out of git.
 
 ## License
-MIT (code). NASA data is subject to NASA's terms.
+
+Code is MIT. See [LICENSE](LICENSE). NASA data follows NASA's terms. SAFFIRE-I on PSI is CC0-1.0, DOI [10.60555/0t15-1z43](https://doi.org/10.60555/0t15-1z43).
