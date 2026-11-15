@@ -1,4 +1,4 @@
-import type { Dataset, Detection, Distortion, Calibration, FlameFrameResult, HistoryItem, ImageInfo, ProcessLogItem, Report, ReportDetail } from "@/types";
+import type { AskRequest, AskResponse, Dataset, Detection, Distortion, Calibration, DocumentsResponse, FlameFrameResult, HistoryItem, ImageInfo, ProcessLogItem, Report, ReportDetail, SummarizeRequest, SummaryResponse } from "@/types";
 export const API = process.env.NEXT_PUBLIC_API_URL ?? ""; // empty = same-origin, proxied by Next rewrites
 async function j<T>(r: Response): Promise<T> {
   if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(typeof e.detail === "string" ? e.detail : `HTTP ${r.status}`); }
@@ -33,4 +33,9 @@ export const api = {
   },
   overlayUrl: (f: string) => `${API}/outputs/detected/${encodeURIComponent(f)}`,
   reportDownload: (id: string, fmt: "html" | "json") => `${API}/api/reports/${id}/download?format=${fmt}`,
+  research: {
+    ask: (body: AskRequest) => post("/api/research/ask", body).then(j<AskResponse>),
+    documents: () => fetch(API + "/api/research/documents").then(j<DocumentsResponse>),
+    summarize: (body: SummarizeRequest) => post("/api/research/summarize", body).then(j<SummaryResponse>),
+  },
 };

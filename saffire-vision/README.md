@@ -16,6 +16,7 @@ The app does not predict fire behaviour, estimate temperature, or invent a camer
 | Camera Calibration | Why these images cannot calibrate a camera. No camera matrix is saved |
 | Reports | HTML and JSON reports of the checks above |
 | Combustion Investigations | 24 PSI combustion investigations, with test conditions and publications |
+| Research Assistant | Evidence-grounded questions over indexed NASA sources, with citations and passage-only fallback |
 | Fire Safety Insights | A reading of each PSI record for habitat fire safety. Written by the model, not yet reviewed, and not a measured burn result |
 | Flame Frames | Flame-colored pixels in one uploaded color still. Pixel count and percent of the image only |
 | About | How this module fits the challenge |
@@ -53,6 +54,22 @@ node scripts/generate-insights.mjs
 ```
 
 The checked-in `insights.json` is enough to run the pages. You do not need a key unless you want to rewrite the insights.
+
+## Research Assistant
+
+The Research Assistant searches the indexed PSI investigation records, publication titles, NASA's 2015 Researcher's Guide entries, and the challenge background. Answers show numbered evidence citations and uncertainty notes. It does not index publication abstracts or full text, raw experiment files, images, or videos.
+
+Without a Gemini key, the assistant returns matching passages only. With `GEMINI_API_KEY`, it uses Gemini `gemini-2.5-flash`; the model receives only the retrieved passages, and unsupported citations or numeric claims are removed before the answer is shown.
+
+Set the optional key in the same PowerShell window used to start the backend:
+
+```powershell
+$env:GEMINI_API_KEY = "<your key>"
+$env:ASSISTANT_MODEL = "gemini-2.5-flash"
+python run.py
+```
+
+The backend does not load `.env` automatically. Keep real keys in the local, gitignored `.env` file or process environment; never commit them. The research endpoints are `POST /api/research/ask`, `GET /api/research/documents`, and `POST /api/research/summarize`.
 
 ## Stack
 

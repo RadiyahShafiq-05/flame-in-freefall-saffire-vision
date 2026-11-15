@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .config import OUT_DETECTED, OUT_FLAME, PROCESSED, CORS_ORIGINS
-from .routes import images, analysis, calibration, reports
+from .routes import images, analysis, calibration, reports, research
 
 app = FastAPI(
     title="SAFFIRE Vision API",
@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Processed-File"],
 )
-for r in (images, analysis, calibration, reports):
+for r in (images, analysis, calibration, reports, research):
     app.include_router(r.router)
 app.mount("/outputs/detected", StaticFiles(directory=OUT_DETECTED), name="detected")
 app.mount("/outputs/flame", StaticFiles(directory=OUT_FLAME), name="flame")

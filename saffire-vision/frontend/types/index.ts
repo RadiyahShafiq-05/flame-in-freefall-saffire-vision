@@ -37,3 +37,26 @@ export interface ProcessLogItem {
   detection_success?: boolean; geometry?: Distortion["geometry"];
   statement?: string; changed?: boolean; improved?: boolean;
 }
+
+export interface AskRequest { question: string; top_k?: number; use_llm?: boolean }
+export interface EvidenceItem {
+  n: number; id: string; label: string; kind: string; evidence_type: string; accessions: string[];
+  page: string | null; source_label: string; source_url: string | null; excerpt: string; score: number;
+}
+export interface RelatedInvestigation { accession: string; acronym: string | null; title: string }
+export interface AskResponse {
+  question: string; answered: boolean; mode: "llm" | "extractive" | "none"; model: string | null;
+  answer: string | null; documented: string | null; interpretation: string | null; uncertainty: string[];
+  evidence: EvidenceItem[]; related_investigations: RelatedInvestigation[]; llm_error: string | null; disclaimers: string[];
+}
+export interface SourceInfo { kind: string; label: string; url: string | null; passages: number; note: string | null }
+export interface DocumentsResponse {
+  llm_configured: boolean; model: string | null; investigations_indexed: number; passages: number;
+  sources: SourceInfo[]; not_indexed: string[];
+}
+export interface SummarizeRequest { accession: string }
+export interface SummarySection { title: string; text: string | null; source_field: string; available: boolean }
+export interface SummaryResponse {
+  accession: string; acronym: string | null; title: string; sections: SummarySection[]; guide_entries: EvidenceItem[];
+  not_available: string[]; notes: string[]; source_url: string; method: string;
+}
