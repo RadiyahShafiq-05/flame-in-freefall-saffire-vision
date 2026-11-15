@@ -1,0 +1,449 @@
+{
+ "source": {
+  "label": "NASA, A Researcher's Guide to: Combustion Science (NP-2015-10-034-JSC), published 2015",
+  "url": "https://www.nasa.gov/missions/station/a-researchers-guide-to-combustion-science/",
+  "pdf_url": "https://www.nasa.gov/wp-content/uploads/2016/05/np-2015-10-034-jsc_combustion_in_reduced_gravity-iss-mini-book-011116-508.pdf",
+  "note": "Written in 2015. It describes BASS but not BASS-II, SAFFIRE, SAME-R or CFI-G, and it describes the ACME experiments as planned. Statements are paraphrased; 'type' says whether an item reports a result (finding), describes planned work (plan) or gives context (background)."
+ },
+ "entries": [
+  {
+   "id": "g-buoyancy",
+   "type": "background",
+   "page": "8",
+   "text": "In normal gravity, buoyant flow driven by the large temperature difference between a flame and its surroundings dominates bench-scale combustion experiments and hides the physics of interest. Without gravity buoyancy is suppressed and the analysis can be reduced to much simpler one-dimensional systems. Flame temperatures of roughly 2,300 K against about 300 K ambient give an eight-fold density change over a centimetre; that drives the upward flow and the flicker of flames on Earth.",
+   "accessions": [],
+   "topics": [
+    "microgravity",
+    "buoyancy",
+    "convection",
+    "flame shape",
+    "why fire behaves differently"
+   ]
+  },
+  {
+   "id": "g-everything-different",
+   "type": "background",
+   "page": "9-10",
+   "text": "Every aspect of fire prevention, detection and suppression is fundamentally different in space than on Earth. How these environmental changes affect combustion in reduced gravity is unclear and needs to be better understood for all mission-relevant scenarios.",
+   "accessions": [],
+   "topics": [
+    "fire safety",
+    "prevention",
+    "detection",
+    "suppression",
+    "microgravity"
+   ]
+  },
+  {
+   "id": "g-flex-limit",
+   "type": "finding",
+   "page": "12",
+   "text": "FLEX burned heptane and methanol droplets in oxygen and nitrogen with a second inert gas added (nitrogen, carbon dioxide, helium or xenon) to see how an inert suppressant changes the flammability limit. Research to date showed the flammability limit is lower in reduced gravity. The guide concludes that terrestrial standards for inert-gas suppressants do not give the same margin of safety in low gravity.",
+   "accessions": [
+    "PSI-69"
+   ],
+   "topics": [
+    "suppression",
+    "flammability limit",
+    "carbon dioxide",
+    "helium",
+    "inert gas",
+    "droplet",
+    "oxygen"
+   ]
+  },
+  {
+   "id": "g-flex-results",
+   "type": "finding",
+   "page": "13",
+   "text": "The FLEX experiments performed to date showed radiative and diffusive extinction, combustion instabilities and lower flammability limits, and explained a cool-flame phenomenon that persists after the visible flame goes out. Comparison with models validated some aspects of the models and showed where they need improvement.",
+   "accessions": [
+    "PSI-69"
+   ],
+   "topics": [
+    "extinction",
+    "cool flame",
+    "instability",
+    "droplet"
+   ]
+  },
+  {
+   "id": "g-flex-loi",
+   "type": "finding",
+   "page": "36",
+   "text": "FLEX identified radiative and diffusive extinction limits for heptane and methanol droplets, and a limiting oxygen index that is significantly lower than in normal gravity and lower than previously predicted. Stable, quasi-steady cool flames were seen after the visible heptane flame went out.",
+   "accessions": [
+    "PSI-69"
+   ],
+   "topics": [
+    "limiting oxygen index",
+    "LOI",
+    "extinction",
+    "cool flame",
+    "suppression"
+   ]
+  },
+  {
+   "id": "g-cool-flames",
+   "type": "finding",
+   "page": "33-34",
+   "text": "After the hot flame of a large alkane droplet went out in FLEX, the droplet kept vaporizing for an extended period, supported by a lower-temperature cool flame, until the cool flame itself went out. The cool flame burns only a fraction of the fuel vaporizing from the droplet. Many in the research community had considered this impossible.",
+   "accessions": [
+    "PSI-69"
+   ],
+   "topics": [
+    "cool flame",
+    "droplet",
+    "vaporization",
+    "extinction"
+   ]
+  },
+  {
+   "id": "g-cool-flames-safety",
+   "type": "plan",
+   "page": "41-42",
+   "text": "The guide proposes a Cool Flames initiative using existing FLEX-2 hardware. It notes that reduced gravity favours a low-temperature combustion regime of very weak but persistent flames, invisible to the naked eye, that can re-ignite spontaneously long after the visible flame has gone out. The preconditions and mechanisms of that re-ignition are described as poorly understood.",
+   "accessions": [
+    "PSI-69"
+   ],
+   "topics": [
+    "cool flame",
+    "spacecraft fire safety",
+    "re-ignition",
+    "research gap"
+   ]
+  },
+  {
+   "id": "g-flex2",
+   "type": "plan",
+   "page": "13",
+   "text": "FLEX-2 is the follow-on to FLEX. It studies a range of fuels, including fuel mixtures and real-fuel surrogates, soot formation, slow sub-buoyant convective flows and droplet-droplet interactions.",
+   "accessions": [
+    "PSI-68"
+   ],
+   "topics": [
+    "droplet",
+    "soot",
+    "fuel mixture",
+    "convection"
+   ]
+  },
+  {
+   "id": "g-mdca",
+   "type": "background",
+   "page": "12",
+   "text": "The Multi-user Droplet Combustion Apparatus in the Combustion Integrated Rack handles droplets of 1 to 5 mm, free-floating or on a fibre, in 0 to 3 atm atmospheres with up to 40 percent oxygen by volume.",
+   "accessions": [
+    "PSI-69",
+    "PSI-68",
+    "PSI-39"
+   ],
+   "topics": [
+    "hardware",
+    "MDCA",
+    "droplet",
+    "oxygen",
+    "pressure"
+   ]
+  },
+  {
+   "id": "g-spice",
+   "type": "finding",
+   "page": "13-14",
+   "text": "SPICE flew in 2009 in the Microgravity Science Glovebox, using a fan-driven flow duct. It studied the transition from non-sooting to sooting flames, with the goal of simple predictions of soot emissions. The smoke point depends on fuel chemistry and flow and indicates how readily a fuel produces soot.",
+   "accessions": [
+    "PSI-107"
+   ],
+   "topics": [
+    "smoke point",
+    "soot",
+    "coflow",
+    "glovebox",
+    "flow duct"
+   ]
+  },
+  {
+   "id": "g-jet-flames",
+   "type": "finding",
+   "page": "32",
+   "text": "Microgravity studies of gas-jet flames show that the onset of smoke production in low gravity is substantially different from normal gravity and contrary to earlier predictions. They also show differences in primary soot particle size and in the fractal dimension of soot agglomerates.",
+   "accessions": [],
+   "topics": [
+    "smoke",
+    "soot",
+    "jet flame",
+    "microgravity",
+    "smoke detection"
+   ]
+  },
+  {
+   "id": "g-slice",
+   "type": "plan",
+   "page": "14-15",
+   "text": "SLICE used the SPICE hardware in the glovebox to study lifted and lifting flames, and started and completed operations in 2012. Its purpose is better combustion modelling for higher fuel efficiency and lower pollutant emission.",
+   "accessions": [
+    "PSI-106"
+   ],
+   "topics": [
+    "lifted flame",
+    "glovebox",
+    "soot"
+   ]
+  },
+  {
+   "id": "g-acme",
+   "type": "plan",
+   "page": "14, 44",
+   "text": "As written in 2015, the ACME project planned five experiments in the Combustion Integrated Rack on one modular set of hardware (BRE, CLD Flame, E-FIELD Flames, Flame Design and s-Flame), expected to begin operating in 2016. All are laminar diffusion flames, focused on soot, flame stability and extinction, materials flammability and electric-field effects. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-10",
+    "PSI-20",
+    "PSI-21",
+    "PSI-22",
+    "PSI-23"
+   ],
+   "topics": [
+    "ACME",
+    "CIR",
+    "hardware",
+    "laminar diffusion flame"
+   ]
+  },
+  {
+   "id": "g-bre",
+   "type": "plan",
+   "page": "15",
+   "text": "Unlike the other ACME experiments, BRE is focused on fire prevention, especially in spacecraft. It aims to improve understanding of materials flammability (ignition and extinction) and to judge whether existing flammability test methods are relevant for low and partial gravity. It simulates solid and liquid fuels with a flat porous burner fed by gaseous fuel. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-20"
+   ],
+   "topics": [
+    "fire prevention",
+    "materials flammability",
+    "partial gravity",
+    "test method",
+    "burner"
+   ]
+  },
+  {
+   "id": "g-efield",
+   "type": "plan",
+   "page": "16",
+   "text": "E-FIELD Flames examines how electric fields act on the ions in a flame. Fields can change flame shape, soot or flammability limits, heat transfer and pollutant emission. It plans up to 10 kV between burner and mesh and measures ion current and the flame's response time. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-22"
+   ],
+   "topics": [
+    "electric field",
+    "ion",
+    "flammability limit",
+    "soot"
+   ]
+  },
+  {
+   "id": "g-flame-design",
+   "type": "plan",
+   "page": "16-17",
+   "text": "Flame Design aims to improve understanding of soot inception and control for oxygen-enriched combustion and for robust soot-free non-premixed flames. It examines soot inception and extinction limits of spherical microgravity flames with various fuel and oxygen-enriched atmospheres, including inverse flames where oxygen and inert gas come from the central tube. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-10"
+   ],
+   "topics": [
+    "soot",
+    "oxygen enriched",
+    "inverse flame",
+    "extinction limit",
+    "spherical flame"
+   ]
+  },
+  {
+   "id": "g-cld",
+   "type": "plan",
+   "page": "16",
+   "text": "CLD Flame aims to extend the range of flame conditions that can be predicted accurately, in particular sooty pure-fuel flames and dilute flames near extinction, by building and testing chemical-kinetic and soot sub-models, using methane and ethylene flames in air coflow. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-21"
+   ],
+   "topics": [
+    "soot",
+    "coflow",
+    "dilute flame",
+    "extinction"
+   ]
+  },
+  {
+   "id": "g-sflame",
+   "type": "plan",
+   "page": "17-18",
+   "text": "s-Flame aims to improve prediction of the structure and dynamics, including extinction, of soot-free and sooty spherical flames from a porous spherical burner. Objectives include radiative and convective extinction limits and pulsating instabilities predicted theoretically. The guide describes plans, not results.",
+   "accessions": [
+    "PSI-23"
+   ],
+   "topics": [
+    "spherical flame",
+    "extinction",
+    "instability",
+    "soot"
+   ]
+  },
+  {
+   "id": "g-solid-flammability",
+   "type": "finding",
+   "page": "18",
+   "text": "Low-gravity experiments with solid materials show large differences in flame behaviour. The assumed safety margin of reduced flammability in microgravity, based on tests in still air, may not hold in most spacecraft, where ventilation flow strongly enhances flames. In low-flow microgravity or partial gravity some materials burn at lower oxygen concentrations than in normal gravity. Materials ignite more easily in low gravity because natural convective cooling is reduced. At low airflow speeds a flame may spread into the oncoming flow, the opposite of normal gravity. Radiant heat loss reduces flammability, while external radiant heat makes materials ignite and spread faster.",
+   "accessions": [],
+   "topics": [
+    "solid material",
+    "flammability",
+    "oxygen",
+    "airflow",
+    "ignition",
+    "flame spread",
+    "partial gravity",
+    "fire prevention"
+   ]
+  },
+  {
+   "id": "g-bass",
+   "type": "finding",
+   "page": "19, 21-22, 31",
+   "text": "BASS ran in the Microgravity Science Glovebox on the SPICE flow duct from March 2012, burning flat samples, acrylic (PMMA) spheres, porous wax slabs and wax candles. The glovebox is normally at about 21 percent oxygen and one atmosphere; nitrogen was used to reach as low as 17 percent oxygen. Recent results indicate that the NASA-STD-6001 Test 1 is not conservative, and that materials can burn at lower oxygen levels in microgravity than on Earth. Local application of suppressant was not adequate to extinguish flames, because the jet entrains air and sustains the flame. Nitrogen applied to a flame can strengthen it for the same reason.",
+   "accessions": [
+    "PSI-26"
+   ],
+   "topics": [
+    "BASS",
+    "solid material",
+    "flammability",
+    "suppression",
+    "oxygen",
+    "nitrogen",
+    "NASA-STD-6001",
+    "fire prevention"
+   ]
+  },
+  {
+   "id": "g-bass-hypothesis",
+   "type": "plan",
+   "page": "21",
+   "text": "BASS tests the hypothesis that, with adequate ventilation, materials in microgravity burn as well as or better than the same material in normal gravity under otherwise identical conditions such as pressure, oxygen concentration and temperature. The airflow speed is the main variable.",
+   "accessions": [
+    "PSI-26"
+   ],
+   "topics": [
+    "BASS",
+    "hypothesis",
+    "airflow",
+    "solid material"
+   ]
+  },
+  {
+   "id": "g-min-velocity",
+   "type": "finding",
+   "page": "31",
+   "text": "For flame spread over solid materials, the boundary of steady spread has a minimum at a gas velocity of about 10 cm/s, which also gives the maximum spread rate. This is typical of spacecraft ventilation velocities, so it has large implications for material flammability in reduced gravity and for spacecraft fire safety.",
+   "accessions": [],
+   "topics": [
+    "airflow",
+    "ventilation",
+    "flame spread",
+    "flammability limit",
+    "oxygen",
+    "spacecraft fire safety"
+   ]
+  },
+  {
+   "id": "g-candle",
+   "type": "finding",
+   "page": "30",
+   "text": "In a long-duration microgravity test on the Mir station a candle flame burned in some tests for more than 45 minutes before running out of fuel, and burned to a lower ambient oxygen fraction than the same candle on Earth. This contradicted published arguments that a steady flame cannot exist without convection.",
+   "accessions": [],
+   "topics": [
+    "candle",
+    "flame existence",
+    "oxygen",
+    "microgravity"
+   ]
+  },
+  {
+   "id": "g-misconceptions",
+   "type": "background",
+   "page": "35",
+   "text": "The guide lists three misconceptions about spacecraft fires that research has shown to be wrong: that a steady fire cannot exist in quiescent microgravity, that a fire will go out by itself if ventilation is shut off, and that terrestrial fire standards and tests are very conservative for space.",
+   "accessions": [],
+   "topics": [
+    "fire safety",
+    "misconception",
+    "ventilation",
+    "standards",
+    "prevention"
+   ]
+  },
+  {
+   "id": "g-detection",
+   "type": "finding",
+   "page": "26, 35",
+   "text": "Fire detection in spacecraft is difficult because buoyancy affects the properties of smoke. The Dust and Aerosol Measurement Feasibility Test looked at background aerosol levels on the ISS, and SAME looked at the particle-size distribution of smoke from spacecraft materials; the guide says these instruments can guide the design of future smoke detectors. Flames in microgravity produce very different particulate sizes, and since many detectors sense particulates they would need different signatures in space.",
+   "accessions": [
+    "PSI-47",
+    "PSI-102"
+   ],
+   "topics": [
+    "smoke detection",
+    "aerosol",
+    "particle size",
+    "smoke",
+    "detector",
+    "SAME",
+    "DAFT"
+   ]
+  },
+  {
+   "id": "g-water-mist",
+   "type": "background",
+   "page": "26",
+   "text": "Water-mist portable fire extinguishers were designed, tested and certified for spaceflight to replace CO2 units. The first two of nine planned units were sent to the ISS in December 2015.",
+   "accessions": [],
+   "topics": [
+    "suppression",
+    "water mist",
+    "extinguisher",
+    "carbon dioxide",
+    "earth application"
+   ]
+  },
+  {
+   "id": "g-facilities",
+   "type": "background",
+   "page": "43-45",
+   "text": "The Combustion Integrated Rack has a 100-litre chamber with eight optical windows and was built for experiments on fire prevention, detection and suppression. The Microgravity Science Glovebox has a 255-litre work space. SAME ran in the glovebox in 2007 and 2010, SPICE in 2009, SLICE in 2012, and BASS from 2012.",
+   "accessions": [
+    "PSI-102",
+    "PSI-107",
+    "PSI-106",
+    "PSI-26"
+   ],
+   "topics": [
+    "hardware",
+    "CIR",
+    "MSG",
+    "glovebox"
+   ]
+  },
+  {
+   "id": "g-gap-solids",
+   "type": "plan",
+   "page": "38",
+   "text": "The guide says new initiatives are needed for long-duration solid-fuel combustion testing in microgravity, that a ground-based solid-fuel program should be restarted, and that the planned SoFIE insert could test exploration atmospheres with reduced pressure and elevated oxygen. It also proposes a microgravity wind tunnel for large samples, fire growth and suppression tests.",
+   "accessions": [],
+   "topics": [
+    "research gap",
+    "exploration atmosphere",
+    "solid material",
+    "future work",
+    "lunar",
+    "Mars"
+   ]
+  }
+ ]
+}

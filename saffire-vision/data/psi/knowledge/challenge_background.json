@@ -1,0 +1,180 @@
+{
+ "source": {
+  "label": "NASA Space Apps Challenge 2026, 'Flame in Freefall' challenge description (text supplied by the team)",
+  "url": null,
+  "note": "Background statements from the challenge text, paraphrased. They are not PSI measurements."
+ },
+ "entries": [
+  {
+   "id": "c-buoyancy",
+   "type": "background",
+   "page": null,
+   "text": "Flames in free fall differ greatly from flames on Earth because buoyancy, and so rising hot gases, is absent. A candle flame becomes a faint blue sphere that depends on diffusion for its oxygen.",
+   "accessions": [],
+   "topics": [
+    "microgravity",
+    "buoyancy",
+    "candle",
+    "why fire behaves differently"
+   ]
+  },
+  {
+   "id": "c-focus",
+   "type": "background",
+   "page": null,
+   "text": "NASA's spacecraft fire safety work focuses on prevention, detection and suppression. Prevention comes from controlling ignition sources and choosing materials, which requires knowing flammability limits.",
+   "accessions": [],
+   "topics": [
+    "prevention",
+    "detection",
+    "suppression",
+    "flammability limit"
+   ]
+  },
+  {
+   "id": "c-atmosphere",
+   "type": "background",
+   "page": null,
+   "text": "Spacesuits are filled with 100 percent oxygen at only 4.3 psi, against 14.7 psi for Earth at sea level. Astronauts pre-breathe oxygen to avoid decompression sickness. To shorten pre-breathing, the Moon Base and pressurized rovers are expected to use a pressure and oxygen concentration between those of a spacesuit and Earth's air. The intermediate oxygen concentration on the Moon will likely be 30 percent or more at 10.2 psi or less, more than a 40 percent increase over Earth's air, which makes materials much more flammable.",
+   "accessions": [],
+   "topics": [
+    "lunar",
+    "moon",
+    "rover",
+    "habitat",
+    "oxygen",
+    "pressure",
+    "spacesuit"
+   ]
+  },
+  {
+   "id": "c-oxygen-airflow",
+   "type": "background",
+   "page": null,
+   "text": "Flammability depends strongly on oxygen concentration, and airflow also matters in microgravity. Flammability studies focus on solid materials such as fabrics and plastics, in BASS, BASS-II and the SAFFIRE-I, -II and -III investigations.",
+   "accessions": [],
+   "topics": [
+    "oxygen",
+    "airflow",
+    "solid material",
+    "fabric",
+    "BASS",
+    "SAFFIRE",
+    "flammability"
+   ]
+  },
+  {
+   "id": "c-detection-suppression",
+   "type": "background",
+   "page": null,
+   "text": "Fire detection was tested in microgravity in the SAME and SAME-R studies. Suppression was studied in FLEX by diluting the chamber atmosphere with carbon dioxide and helium, both of which suppress fire.",
+   "accessions": [],
+   "topics": [
+    "smoke detection",
+    "suppression",
+    "SAME",
+    "FLEX",
+    "carbon dioxide",
+    "helium"
+   ]
+  },
+  {
+   "id": "c-highest-oxygen",
+   "type": "background",
+   "page": null,
+   "text": "The microgravity tests with the highest oxygen concentrations were in ACME's Cool Flames Investigation with Gases (CFI-G). The chamber held a nitrogen and flammable-gas mixture such as propane, while an oxygen-nitrogen mixture of up to 85 percent oxygen flowed from a spherical burner, giving an inside-out flame.",
+   "accessions": [],
+   "topics": [
+    "CFI-G",
+    "oxygen",
+    "high oxygen",
+    "inverse flame",
+    "lunar"
+   ]
+  },
+  {
+   "id": "c-partial-gravity",
+   "type": "background",
+   "page": null,
+   "text": "There is currently no partial-gravity combustion data in the PSI database. Such data are expected later, for example from the Lunar-g Combustion Investigation (LUCI) and the Flammability of Materials on the Moon (FM2) experiment. Microgravity and normal-gravity results could bound what happens at intermediate gravity levels, but do not replace partial-gravity data. The E-FIELD Flames experiment mimicked partial gravity through the effect of an electric field on flame ions.",
+   "accessions": [],
+   "topics": [
+    "partial gravity",
+    "lunar",
+    "Mars",
+    "research gap",
+    "E-FIELD",
+    "moon"
+   ]
+  },
+  {
+   "id": "c-hardware",
+   "type": "background",
+   "page": null,
+   "text": "The six ACME experiments used the same modular hardware in the Combustion Integrated Rack (CIR). FLEX, FLEX-2 and the Cool Flames Investigation burned liquid droplets using the Multi-user Droplet Combustion Apparatus in the CIR. BASS, BASS-II, SPICE and SLICE used the modular fan-driven flow duct built for SPICE in the Microgravity Science Glovebox.",
+   "accessions": [],
+   "topics": [
+    "hardware",
+    "ACME",
+    "CIR",
+    "MDCA",
+    "MSG",
+    "glovebox"
+   ]
+  },
+  {
+   "id": "c-daft-bre",
+   "type": "background",
+   "page": null,
+   "text": "One of the instruments used for smoke detection in SAME and SAME-R was used to detect dust in the DAFT and DAFT-2 studies. The Burning Rate Emulator (BRE) in ACME burned gaseous fuels but studied materials flammability in still atmospheres as a function of material properties.",
+   "accessions": [],
+   "topics": [
+    "DAFT",
+    "dust",
+    "smoke detection",
+    "BRE",
+    "materials flammability"
+   ]
+  },
+  {
+   "id": "c-rockets",
+   "type": "background",
+   "page": null,
+   "text": "Fire safety involving rockets and propellants is generally beyond the research in the PSI database. High velocities in rocket engines make the combustion effectively independent of gravity, although launch itself depends strongly on gravity.",
+   "accessions": [],
+   "topics": [
+    "rocket",
+    "propellant",
+    "scope",
+    "limitation"
+   ]
+  },
+  {
+   "id": "c-history",
+   "type": "background",
+   "page": null,
+   "text": "Past space fires and accidents show the hazard: the Apollo 1 crew died in 1967 in a pre-launch fire in their oxygen-filled spacecraft, the Apollo 13 crew survived an oxygen tank explosion, and a crew survived a fire on the Mir space station caused by an oxygen generator failure.",
+   "accessions": [],
+   "topics": [
+    "Apollo",
+    "Mir",
+    "history",
+    "oxygen"
+   ]
+  },
+  {
+   "id": "c-earth",
+   "type": "background",
+   "page": null,
+   "text": "Fine-water-mist extinguishers developed for the ISS have uses on Earth. NASA technology has also improved terrestrial smoke detection and firefighter gear, including protective clothing and air tanks.",
+   "accessions": [],
+   "topics": [
+    "earth application",
+    "water mist",
+    "smoke detection",
+    "firefighter",
+    "spinoff"
+   ]
+  }
+ ]
+}

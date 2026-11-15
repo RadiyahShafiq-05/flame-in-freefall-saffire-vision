@@ -2,7 +2,7 @@
 
 Contract for the FastAPI backend (this file is `docs/backend_api.md`). The Next.js app proxies `/api/*` and `/outputs/*` to this service (`BACKEND_URL`, default `http://127.0.0.1:8000`). Swagger UI: `http://127.0.0.1:8000/docs`.
 
-This API inspects distortion-grid images. It does not detect flames, estimate temperature, or classify fire risk. Responses never fill in a camera matrix or a residual that was not computed.
+This API inspects distortion-grid images and provides an approximate flame-pixel detection endpoint. It does not estimate temperature or classify fire risk. Responses never fill in a camera matrix or a residual that was not computed.
 
 ## Errors
 
@@ -259,3 +259,17 @@ Empty sections say that the step has not been run. A calibration block contains 
 | `api.reportDownload` | `GET /api/reports/{id}/download?format=` | html or json file |
 
 New fields are additive. Existing pages keep working if those paths and the `spacing_px` object (mean, std, min, max) stay in place.
+
+## Research assistant
+
+Answers questions about the indexed NASA sources with numbered citations. It never answers from memory.
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/research/ask` | Body: `question` (3 to 500 characters), optional `top_k` (2 to 10), `use_llm` (default true). |
+| `GET /api/research/documents` | What is indexed, what is not, and whether a language model is configured. |
+| `POST /api/research/summarize` | Body: `accession`. Rule-based summary of one investigation plus guide entries that mention it. |
+
+The assistant indexes the PSI investigation records available in the frontend catalog, their publication titles, the NASA 2015 Researcher's Guide entries, and the challenge background. Abstracts and full papers are not indexed. PSI records describe aims and methods, not results; reported results come only from the guide entries.
+
+Without `GEMINI_API_KEY`, answers use matching passages only. With a key, the Gemini model receives only numbered retrieved passages; citations and numeric claims are checked before the answer is returned. Set `GEMINI_API_KEY` and optionally `ASSISTANT_MODEL` (default `gemini-2.5-flash`) in the same PowerShell window before starting the backend. Never commit a key.

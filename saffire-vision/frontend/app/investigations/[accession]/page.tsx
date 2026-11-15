@@ -11,6 +11,8 @@ import {
 } from "@/lib/investigations";
 import { AreaTag, VariableTag } from "../tags";
 import InsightCard from "../../insights/InsightCard";
+import { api } from "@/lib/api";
+import type { SummaryResponse } from "@/types";
 
 const PUBS_SHOWN = 8;
 
@@ -27,6 +29,9 @@ export default function InvestigationDetail({ params }: { params: { accession: s
   const { data, error } = useInvestigations();
   const insights = useInsights();
   const [allPubs, setAllPubs] = useState(false);
+  const [summary, setSummary] = useState<SummaryResponse | null>(null);
+  const [summaryError, setSummaryError] = useState("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   if (error) return <div className="space-y-6"><Back /><Notice tone="warn" title="Could not load the investigation list">{error}</Notice></div>;
   if (!data) return <div className="space-y-6"><Back /><div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" aria-label="Loading investigation" /></div>;
@@ -79,6 +84,21 @@ export default function InvestigationDetail({ params }: { params: { accession: s
           </Link>
         )}
       </div>
+
+      <Card title="Research assistant summary" action={<button className="btn-ghost text-xs" disabled={summaryLoading}
+        onClick={async () => { setSummaryLoading(true); setSummaryError(""); try { setSummary(await api.research.summarize({ accession: inv.accession })); } catch (e) { setSummaryError(e instanceof Error ? e.message : "Summary unavailable."); } finally { setSummaryLoading(false); } }}>
+        {summaryLoading ? "Summarizing..." : summary ? "Refresh summary" : "Summarize"}
+      </button>}>
+        {summaryError && <p className="text-sm text-warn">{summaryError}</p>}
+        {!summary && !summaryError && <p className="text-sm text-muted">Generate a rule-based summary from this investigation&apos;s PSI fields and guide entries.</p>}
+        {summary && <div className="space-y-3">
+          {summary.sections.map(section => <div key={section.title}>
+            <h3 className="text-sm font-medium text-ink">{section.title}</h3>
+            <p className="text-sm text-muted">{section.text || "Not available in the PSI record."}</p>
+          </div>)}
+          <p className="text-xs text-faint">{summary.method}</p>
+        </div>}
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-6">
