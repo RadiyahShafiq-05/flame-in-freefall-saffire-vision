@@ -27,12 +27,12 @@ export default function InvestigationDetail({ params }: { params: { accession: s
   const [allPubs, setAllPubs] = useState(false);
 
   if (error) return <div className="space-y-6"><Back /><Notice tone="warn" title="Could not load the investigation list">{error}</Notice></div>;
-  if (!data) return <div className="space-y-6"><Back /><div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" aria-label="Loading investigation" /></div>;
+  if (!data) return <div className="space-y-6"><Back /><div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" role="status" aria-label="Loading investigation" /></div>;
 
   const inv = data.investigations.find(i => i.accession === params.accession);
   if (!inv) return (
     <div className="space-y-6"><Back />
-      <EmptyState title={`${params.accession} is not in the list`} body="Only the 24 combustion investigations downloaded from NASA PSI are included." /></div>
+      <EmptyState title={`${params.accession} is not in the list`} body={`Only the ${data.investigations.length} combustion investigations downloaded from NASA PSI are included.`} /></div>
   );
 
   const area = briefArea(inv);
@@ -47,7 +47,9 @@ export default function InvestigationDetail({ params }: { params: { accession: s
       ? <a key="h" className="link" href={inv.hardwareLink} target="_blank" rel="noreferrer">{inv.hardware || "Hardware page"}</a>
       : inv.hardware || "Not listed"],
     ["Managing center", inv.managingCenter || "Not listed"],
-    ["Dates", [inv.startDate, inv.endDate].filter(Boolean).join(" to ") || "Not listed"],
+    ["Dates", inv.startDate || inv.endDate
+      ? <>{[inv.startDate, inv.endDate].filter(Boolean).map((d, k) => <span key={k} className="whitespace-nowrap">{k ? " to " : ""}{d}</span>)}</>
+      : "Not listed"],
     ["Data in PSI", formatBytes(inv.totalFileSizeBytes)],
     ["Licence", inv.license || "Not listed"],
     ["PSI record updated", inv.modifiedDate || "Not listed"],
@@ -145,7 +147,7 @@ export default function InvestigationDetail({ params }: { params: { accession: s
                   ))}
                 </ol>
                 {inv.publications.length > PUBS_SHOWN && (
-                  <button className="btn-ghost mt-4 text-xs" onClick={() => setAllPubs(v => !v)}>
+                  <button className="btn-ghost mt-4 text-xs" aria-expanded={allPubs} onClick={() => setAllPubs(v => !v)}>
                     {allPubs ? "Show fewer" : `Show all ${inv.publications.length}`}
                   </button>
                 )}
@@ -164,12 +166,12 @@ export default function InvestigationDetail({ params }: { params: { accession: s
           <Card title="Facts from PSI">
             <dl className="space-y-2.5 text-sm">
               {facts.map(([k, v]) => (
-                <div key={k} className="grid grid-cols-[8.5rem_1fr] gap-3">
+                <div key={k} className="grid grid-cols-[7.5rem_1fr] gap-3">
                   <dt className="text-xs text-muted">{k}</dt>
                   <dd className="min-w-0 break-words text-ink">{v}</dd>
                 </div>
               ))}
-              <div className="grid grid-cols-[8.5rem_1fr] gap-3">
+              <div className="grid grid-cols-[7.5rem_1fr] gap-3">
                 <dt className="text-xs text-muted">Test rows</dt>
                 <dd className="num font-mono text-ink">{testRows(inv).toLocaleString()}</dd>
               </div>
