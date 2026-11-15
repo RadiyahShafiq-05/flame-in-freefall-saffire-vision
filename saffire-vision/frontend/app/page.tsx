@@ -13,6 +13,32 @@ import EmptyState from "@/components/EmptyState";
 import ImageCard from "@/components/ImageCard";
 import FileName from "@/components/FileName";
 import Notice from "@/components/Notice";
+import { briefArea, displayName, useInvestigations } from "@/lib/investigations";
+
+// The headline from the Moon-base counts on /insights, so the overview leads with the fire-safety result.
+function MoonBaseFinding() {
+  const { data } = useInvestigations();
+  if (!data) return null;
+  const all = data.investigations;
+  const tests = (i: (typeof all)[number]) => i.moonBase.reduce((n, m) => n + (m.both ?? 0), 0);
+  const both = all.filter(i => tests(i) > 0);
+  const gap = all.filter(i => briefArea(i) && !i.moonBase.length);
+  return (
+    <Card title="Fire-safety finding" action={<Link className="link text-xs" href="/insights">Open Fire Safety Insights</Link>}>
+      <p className="max-w-[75ch] text-base leading-relaxed text-ink">
+        {both.length === 0 ? "No test in NASA's experiment tables ran at the brief's Moon-base atmosphere"
+          : <>{both.length === 1 ? "Only one investigation" : `Only ${both.length} investigations`} ran tests at the brief&apos;s Moon-base atmosphere:{" "}
+              {both.map((i, k) => <span key={i.accession}>{k > 0 && ", "}<Link className="link" href={`/investigations/${i.accession}`}>{displayName(i)}</Link></span>)},
+              with <span className="num font-mono text-accent">{both.reduce((n, i) => n + tests(i), 0)}</span> tests</>}
+        {" "}(30% oxygen or more and 10.2 psi or less together).
+      </p>
+      <p className="mt-2 max-w-[75ch] text-sm text-muted">
+        {gap.length > 0 && <>{gap.map(displayName).join(", ")} {gap.length === 1 ? "is" : "are"} named in the brief but record neither ambient oxygen nor pressure. </>}
+        Each investigation also has a cited SI reading, and the <Link className="link" href="/research">Research Assistant</Link> answers questions from the indexed NASA sources.
+      </p>
+    </Card>
+  );
+}
 
 // Each source is null when it failed, so one failing endpoint never hides the others or turns
 // their workflow steps into a false "Pending".
@@ -180,6 +206,8 @@ export default function Overview() {
           The backend did not return the {activity.failed.join(", ")}. The rest of the page is unaffected; reload to try again.
         </Notice>
       ) : null}
+
+      <MoonBaseFinding />
 
       <Card title="Workflow" action={<span className="text-xs text-faint">{live ? "Live from the backend · select a step to open it" : "Pending until the backend responds"}</span>}>
         <ol className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">

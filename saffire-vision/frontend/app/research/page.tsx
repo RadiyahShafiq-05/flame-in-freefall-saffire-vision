@@ -8,6 +8,12 @@ import PageHeader from "@/components/PageHeader";
 import { api } from "@/lib/api";
 import type { AskResponse, DocumentsResponse } from "@/types";
 
+const EXAMPLES = [
+  "Which experiments burned materials at high oxygen?",
+  "How does low pressure change flame spread?",
+  "What did the smoke detection experiments test?",
+];
+
 function CitationText({ text }: { text: string }) {
   return <>{text.split(/(\[\d+\])/g).map((part, i) => /^\[\d+\]$/.test(part)
     ? <a key={i} href={`#evidence-${part.slice(1, -1)}`} className="link">{part}</a> : part)}</>;
@@ -48,6 +54,10 @@ export default function Research() {
               className="min-h-28 w-full rounded-md border border-edge-strong bg-base px-3 py-2 text-sm text-ink"
               placeholder="What did NASA learn about fire suppression?" />
           </label>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+            <span>Try:</span>
+            {EXAMPLES.map(q => <button key={q} type="button" className="btn-ghost text-xs" onClick={() => setQuestion(q)}>{q}</button>)}
+          </div>
           <div className="flex flex-wrap items-end gap-3">
             <label className="space-y-1 text-sm text-muted"><span className="block">Top passages</span>
               <input type="number" min={2} max={10} value={topK} onChange={e => setTopK(e.target.value)} className="input" />
@@ -60,7 +70,9 @@ export default function Research() {
       {!result && !loading && <EmptyState title="Ask a research question" body="Answers cite only passages retrieved from the indexed NASA sources." />}
       {result && (
         <div className="space-y-6">
-          <Card title={result.mode === "none" ? "No matching evidence" : "Answer"}>
+          {/* Extractive mode stitches retrieved passages together; it is not a model-written answer. */}
+          <Card title={result.mode === "none" ? "No matching evidence" : result.mode === "extractive" ? "Matching passages" : "Answer"}
+            action={result.mode === "llm" && result.model ? <span className="text-xs text-faint">Written by SI ({result.model}) from the evidence below</span> : undefined}>
             {result.answer ? <p className="whitespace-pre-line text-sm leading-relaxed text-ink"><CitationText text={result.answer} /></p>
               : <p className="text-sm text-muted">No answer was supported by the retrieved evidence.</p>}
             {result.llm_error && <p className="mt-3 text-xs text-warn">{result.llm_error}</p>}
