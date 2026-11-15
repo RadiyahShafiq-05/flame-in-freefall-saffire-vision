@@ -11,6 +11,8 @@ export const NAV: NavItem[] = [
   { href: "/insights", label: "Fire Safety Insights", group: "context", icon: "M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6zM9 12l2 2 4-4" },
   { href: "/investigations", label: "Combustion Investigations", group: "context", icon: "M12 3c3 4 5 6.5 5 10a5 5 0 01-10 0c0-2 1-3.5 2-5 .5 2 1.5 3 3 3-1-3-.5-5.5 0-8z" },
   { href: "/about", label: "About Project", group: "context", icon: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01" },
+  { href: "/gallery", label: "Distortion grids", group: "module",
+  icon: "M3 3h18v18H3z M3 9h18 M3 15h18 M9 3v18 M15 3v18" },
 ];
 
 export function pageTitle(pathname: string) {
