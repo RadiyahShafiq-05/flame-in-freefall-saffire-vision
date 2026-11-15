@@ -140,6 +140,13 @@ Field notes are in [docs/backend_api.md](docs/backend_api.md). Dataset measureme
 
 The four SAFFIRE-1 grid JPEGs are included under `data/raw/` so the app runs after clone. Do not edit their pixels. Other originals stay out of git.
 
+## Use of SI tools
+
+- **Fire Safety Insights text:** written by Google Gemini models (`gemini-4-hydrogen` for 21 investigations, `gemini-3.8-flash` for 3) through the Gemini API in Google AI Studio, from PSI record text only. `scripts/generate-insights.mjs` removes any statement that cites no source passage, or uses a number its cited passages do not contain. One more statement was removed by hand as unsupported. The team has not yet reviewed the rest, and the app labels every insight as written by SI.
+- **Frontend code:** written with Claude (Anthropic) in Claude Code, including the insight generator script. The team directed the work and reviewed each change before merging.
+- **Backend and flame-frame check:** [backend team: name the tools used, or write "none"].
+- **Not SI:** the Moon-base test counts, test-condition ranges, grid checks and flame-pixel marking are computed directly from NASA data. No SI model runs in the backend or in the browser.
+
 ## License
 
 Code is MIT. See [LICENSE](LICENSE). NASA data follows NASA's terms. SAFFIRE-I on PSI is CC0-1.0, DOI [10.60555/0t15-1z43](https://doi.org/10.60555/0t15-1z43).
