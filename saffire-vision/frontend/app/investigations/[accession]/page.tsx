@@ -25,19 +25,18 @@ function Back() {
 
 export default function InvestigationDetail({ params }: { params: { accession: string } }) {
   const { data, error } = useInvestigations();
-  const file = useInsights();
+  const insights = useInsights();
   const [allPubs, setAllPubs] = useState(false);
 
   if (error) return <div className="space-y-6"><Back /><Notice tone="warn" title="Could not load the investigation list">{error}</Notice></div>;
-  if (!data) return <div className="space-y-6"><Back /><div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" role="status" aria-label="Loading investigation" /></div>;
+  if (!data) return <div className="space-y-6"><Back /><div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" aria-label="Loading investigation" /></div>;
 
   const inv = data.investigations.find(i => i.accession === params.accession);
   if (!inv) return (
     <div className="space-y-6"><Back />
-      <EmptyState title={`${params.accession} is not in the list`} body={`Only the ${data.investigations.length} combustion investigations downloaded from NASA PSI are included.`} /></div>
+      <EmptyState title={`${params.accession} is not in the list`} body="Only the 24 combustion investigations downloaded from NASA PSI are included." /></div>
   );
 
-  const insight = file && file !== "missing" ? file.insights[inv.accession] : undefined;
   const area = briefArea(inv);
   const note = briefNote(inv);
   const pubs = allPubs ? inv.publications : inv.publications.slice(0, PUBS_SHOWN);
@@ -50,9 +49,7 @@ export default function InvestigationDetail({ params }: { params: { accession: s
       ? <a key="h" className="link" href={inv.hardwareLink} target="_blank" rel="noreferrer">{inv.hardware || "Hardware page"}</a>
       : inv.hardware || "Not listed"],
     ["Managing center", inv.managingCenter || "Not listed"],
-    ["Dates", inv.startDate || inv.endDate
-      ? <>{[inv.startDate, inv.endDate].filter(Boolean).map((d, k) => <span key={k} className="whitespace-nowrap">{k ? " to " : ""}{d}</span>)}</>
-      : "Not listed"],
+    ["Dates", [inv.startDate, inv.endDate].filter(Boolean).join(" to ") || "Not listed"],
     ["Data in PSI", formatBytes(inv.totalFileSizeBytes)],
     ["Licence", inv.license || "Not listed"],
     ["PSI record updated", inv.modifiedDate || "Not listed"],
@@ -85,18 +82,10 @@ export default function InvestigationDetail({ params }: { params: { accession: s
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-6">
-          {insight && <InsightCard inv={inv} insight={insight} />}
-
-          <Card title="From the PSI record">
+          <Card title="Objective">
             {inv.objective
               ? <p className="max-w-[75ch] whitespace-pre-line text-sm leading-relaxed text-ink">{inv.objective}</p>
               : <p className="text-sm text-muted">PSI lists no objective for this investigation.</p>}
-            {([["Approach", inv.approach], ["Hypothesis", inv.hypothesis], ["Research impacts", inv.impacts]] as const).filter(([, t]) => t).map(([label, text]) => (
-              <details key={label} className="mt-3 border-t border-edge pt-3">
-                <summary className="cursor-pointer text-sm font-medium text-muted hover:text-ink">{label}</summary>
-                <p className="mt-2 max-w-[75ch] whitespace-pre-line text-sm leading-relaxed text-ink">{text}</p>
-              </details>
-            ))}
           </Card>
 
           {inv.conditions.length > 0 && (
@@ -116,22 +105,6 @@ export default function InvestigationDetail({ params }: { params: { accession: s
                 ))}
               </dl>
               <p className="mt-3 text-xs text-faint">Lowest and highest value in each column, so a range covers every test in the table, not one run.</p>
-              {inv.moonBase.length > 0 && (
-                <div className="mt-4 border-t border-edge pt-3">
-                  <h3 className="text-sm font-medium text-ink">Tests at the brief&apos;s Moon-base atmosphere</h3>
-                  <ul className="mt-1.5 space-y-1 text-sm text-muted">
-                    {inv.moonBase.map(m => {
-                      const part = (n: number | null, what: string) => (n === null ? `${what}: not recorded` : `${n} at ${what}`);
-                      return (
-                        <li key={m.table} className="num">
-                          <span className="text-ink">{m.table}</span> ({m.rows} tests): {m.burnerOxygen ? "oxygen: burner stream only" : part(m.oxygen, "30% oxygen or more")} · {part(m.pressure, "10.2 psi or less")} · {part(m.both, "both together")}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <Link href="/insights" className="link mt-2 inline-block text-xs">Compare with every investigation</Link>
-                </div>
-              )}
             </Card>
           )}
 
@@ -174,13 +147,23 @@ export default function InvestigationDetail({ params }: { params: { accession: s
                   ))}
                 </ol>
                 {inv.publications.length > PUBS_SHOWN && (
-                  <button className="btn-ghost mt-4 text-xs" aria-expanded={allPubs} onClick={() => setAllPubs(v => !v)}>
+                  <button className="btn-ghost mt-4 text-xs" onClick={() => setAllPubs(v => !v)}>
                     {allPubs ? "Show fewer" : `Show all ${inv.publications.length}`}
                   </button>
                 )}
               </>
             ) : <p className="text-sm text-muted">PSI lists no publications for this investigation.</p>}
           </Card>
+
+          {insights && insights !== "missing" && insights.insights[inv.accession] && (
+            <div className="space-y-3">
+              <Notice title={insights.reviewed ? "Written by SI, reviewed by the team" : "Written by SI, not yet reviewed by the team"}>
+                This reading restates the PSI record. It is not a measured fire result.{" "}
+                <Link className="link" href="/insights">All fire-safety insights</Link>
+              </Notice>
+              <InsightCard inv={inv} insight={insights.insights[inv.accession]} />
+            </div>
+          )}
         </div>
 
         <div className="min-w-0 space-y-6">
@@ -193,12 +176,12 @@ export default function InvestigationDetail({ params }: { params: { accession: s
           <Card title="Facts from PSI">
             <dl className="space-y-2.5 text-sm">
               {facts.map(([k, v]) => (
-                <div key={k} className="grid grid-cols-[7.5rem_1fr] gap-3">
+                <div key={k} className="grid grid-cols-[8.5rem_1fr] gap-3">
                   <dt className="text-xs text-muted">{k}</dt>
                   <dd className="min-w-0 break-words text-ink">{v}</dd>
                 </div>
               ))}
-              <div className="grid grid-cols-[7.5rem_1fr] gap-3">
+              <div className="grid grid-cols-[8.5rem_1fr] gap-3">
                 <dt className="text-xs text-muted">Test rows</dt>
                 <dd className="num font-mono text-ink">{testRows(inv).toLocaleString()}</dd>
               </div>

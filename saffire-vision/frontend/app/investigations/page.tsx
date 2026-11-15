@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import Card from "@/components/Card";
 import StatCard from "@/components/StatCard";
@@ -42,7 +42,6 @@ export default function Investigations() {
   const [fam, setFam] = useState<Family | "">("");
   const [vars, setVars] = useState<Variable[]>([]);
   const [sort, setSort] = useState<Sort>("relevance");
-  const listRef = useRef<HTMLElement>(null);
 
   const all = useMemo(() => data?.investigations ?? [], [data]);
   const shown = useMemo(() => {
@@ -56,12 +55,6 @@ export default function Investigations() {
   }, [all, query, area, fam, vars, sort]);
   const filtered = query || area || fam || vars.length;
   const reset = () => { setQuery(""); setArea(""); setFam(""); setVars([]); };
-  // The filtered table sits below the chart, out of view, so take the reader to it.
-  const showArea = (a: Area) => {
-    reset(); setArea(a);
-    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-    listRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-  };
 
   const header = (
     <PageHeader title="Combustion Investigations"
@@ -69,7 +62,7 @@ export default function Investigations() {
       actions={<a className="btn-ghost" href="https://psi.nasa.gov/physci/repo/search?q=combustion" target="_blank" rel="noreferrer">Open NASA PSI</a>} />
   );
   if (error) return <div className="space-y-6">{header}<Notice tone="warn" title="Could not load the investigation list">{error}</Notice></div>;
-  if (!data) return <div className="space-y-6">{header}<div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" role="status" aria-label="Loading investigations" /></div>;
+  if (!data) return <div className="space-y-6">{header}<div className="h-64 animate-pulse rounded-lg border border-edge bg-panel motion-reduce:animate-none" aria-label="Loading investigations" /></div>;
 
   const ground = all.filter(isGround).length;
   return (
@@ -96,7 +89,7 @@ export default function Investigations() {
             <div key={a} className="rounded-md border border-edge bg-base/40 p-3">
               <div className="flex items-center justify-between gap-2">
                 <AreaTag area={a} />
-                <button className="link text-xs" onClick={() => showArea(a)} aria-label={`Show only ${AREA_LABEL[a].toLowerCase()} investigations`}>Show only these</button>
+                <button className="link text-xs" onClick={() => { reset(); setArea(a); }} aria-label={`Show only ${AREA_LABEL[a].toLowerCase()} investigations`}>Show only these</button>
               </div>
               <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                 {all.filter(i => briefArea(i) === a).map(i => (
@@ -110,7 +103,7 @@ export default function Investigations() {
 
       <ConditionsChart investigations={all} />
 
-      <section ref={listRef} aria-labelledby="list-h" className="scroll-mt-20 space-y-3">
+      <section aria-labelledby="list-h" className="space-y-3">
         <h2 id="list-h" className="sr-only">All investigations</h2>
         <div className="flex flex-wrap items-end gap-x-4 gap-y-3 [&>*]:shrink-0">
           <label className="block min-w-[16rem] flex-1 space-y-1 text-xs text-muted">
@@ -145,19 +138,17 @@ export default function Investigations() {
               ))}
             </div>
           </fieldset>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-edge pt-3 text-xs text-muted">
-          <div className="flex items-center gap-3">
-            <span className="num" aria-live="polite">Showing {shown.length} of {all.length}</span>
-            {filtered ? <button className="link" onClick={reset}>Clear filters</button> : null}
-          </div>
-          <label className="flex items-center gap-2">
-            <span>Sort by</span>
+          <label className="space-y-1 text-xs text-muted">
+            <span className="block">Sort by</span>
             <select className={`${FIELD} w-56`} value={sort} onChange={e => setSort(e.target.value as Sort)}>
               {(Object.keys(SORTS) as Sort[]).map(s => <option key={s} value={s}>{SORTS[s]}</option>)}
             </select>
           </label>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 text-xs text-muted" aria-live="polite">
+          <span className="num">Showing {shown.length} of {all.length}</span>
+          {filtered ? <button className="link" onClick={reset}>Clear filters</button> : null}
         </div>
 
         {shown.length === 0 ? (
@@ -170,7 +161,7 @@ export default function Investigations() {
                   <th scope="col" className="px-3 py-2 font-medium">Investigation</th>
                   <th scope="col" className="px-3 py-2 font-medium">Brief area</th>
                   <th scope="col" className="px-3 py-2 font-medium">Hardware</th>
-                  <th scope="col" className="whitespace-nowrap px-3 py-2 text-right font-medium">Test rows</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Test rows</th>
                   <th scope="col" className="px-3 py-2 font-medium">Tables record</th>
                   <th scope="col" className="px-3 py-2 text-right font-medium">Publications</th>
                   <th scope="col" className="px-3 py-2 text-right font-medium">Data in PSI</th>
@@ -191,7 +182,7 @@ export default function Investigations() {
                       </td>
                       <td className="px-3 py-2.5">{a ? <AreaTag area={a} /> : <span className="text-xs text-faint">Not named</span>}</td>
                       <td className="px-3 py-2.5 text-xs text-muted">{FAMILY_LABEL[family(i)]}</td>
-                      <td className="num px-3 py-2.5 text-right font-mono text-ink">{i.tables.length ? testRows(i).toLocaleString() : <span className="whitespace-nowrap text-faint">No table</span>}</td>
+                      <td className="num px-3 py-2.5 text-right font-mono text-ink">{i.tables.length ? testRows(i).toLocaleString() : <span className="text-faint">No table</span>}</td>
                       <td className="px-3 py-2.5"><div className="flex flex-wrap gap-1">{recordedVariables(i).map(v => <VariableTag key={v} variable={v} />)}</div></td>
                       <td className="num px-3 py-2.5 text-right font-mono text-ink">{i.publications.length}</td>
                       <td className="num whitespace-nowrap px-3 py-2.5 text-right font-mono text-muted">{formatBytes(i.totalFileSizeBytes)}</td>

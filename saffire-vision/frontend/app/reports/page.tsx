@@ -96,6 +96,16 @@ export default function Reports() {
                       </li>
                     ))}</ol>
                   ) : <p className="text-sm text-muted">No preprocessing runs at the time of this report.</p>}
+                  {report.preprocess_comparison?.statement
+                    ? <div className="mt-2 space-y-1 text-xs text-muted">
+                        <p>{report.preprocess_comparison.statement}</p>
+                        <p className="num">
+                          Original {report.preprocess_comparison.original?.num_corners ?? "—"} corners
+                          {report.preprocess_comparison.original?.rms_px != null ? `, RMS ${report.preprocess_comparison.original.rms_px.toFixed(2)} px` : ""}
+                          {report.preprocess_comparison.copies?.map(c => ` · ${c.operation} ${c.status === "measured" ? `${c.num_corners} corners${c.rms_px != null ? `, RMS ${c.rms_px.toFixed(2)} px` : ""}` : c.status}`).join("")}
+                        </p>
+                      </div>
+                    : report.preprocessing.length > 0 && <p className="mt-2 text-xs text-muted">Copies only. Files in data/raw are unchanged. Detection has not been compared on these copies yet.</p>}
                 </Card>
                 <Card title={`Checkerboard detections · ${report.detections.length}`} level={3}>
                   {report.detections.length ? (
@@ -123,6 +133,7 @@ export default function Reports() {
                       </li>
                     ))}</ol>
                   ) : <p className="text-sm text-muted">No grid geometry runs at the time of this report.</p>}
+                  {report.distortion.length > 0 && <p className="mt-2 text-xs text-muted">Pixel measurements on a caller-chosen sub-region. Not a lens model and not a fire measurement.</p>}
                 </Card>
                 <Card title="Calibration" level={3}>
                   {report.calibration.status === "not_run" ? <p className="text-sm text-muted">Not run at the time of this report.</p> : (

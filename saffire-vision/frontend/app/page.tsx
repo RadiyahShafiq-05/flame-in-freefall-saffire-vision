@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useDataset } from "@/lib/useDataset";
 import { EXPECTED_IMAGES, SAFFIRE_I } from "@/lib/expectedDataset";
 import { isSaffireGrid } from "@/lib/images";
-import type { Calibration, HistoryItem, Report } from "@/types";
+import type { Calibration, Geometry, HistoryItem, ProcessLogItem, Report } from "@/types";
 import Card from "@/components/Card";
 import StatCard from "@/components/StatCard";
 import StatusBadge, { type Status } from "@/components/StatusBadge";
@@ -16,7 +16,7 @@ import Notice from "@/components/Notice";
 
 // Each source is null when it failed, so one failing endpoint never hides the others or turns
 // their workflow steps into a false "Pending".
-interface Activity { history: HistoryItem[] | null; calibration: Calibration | null; reports: Report[] | null; failed: string[] }
+interface Activity { history: HistoryItem[] | null; calibration: Calibration | null; reports: Report[] | null; log: ProcessLogItem[] | null; failed: string[] }
 
 const settled = <T,>(r: PromiseSettledResult<T>) => (r.status === "fulfilled" ? r.value : null);
 
@@ -29,9 +29,9 @@ function useActivity(enabled: boolean) {
     const reports = api.reports().then(async ids => (await Promise.allSettled(ids.map(api.report)))
       .flatMap(r => (r.status === "fulfilled" ? [r.value] : []))
       .sort((a, b) => b.generated.localeCompare(a.generated)));
-    Promise.allSettled([api.history(), api.calStatus(), reports]).then(([h, c, r]) => setActivity({
-      history: settled(h), calibration: settled(c), reports: settled(r),
-      failed: [[h, "analysis history"], [c, "calibration status"], [r, "reports"]]
+    Promise.allSettled([api.history(), api.calStatus(), reports, api.log()]).then(([h, c, r, log]) => setActivity({
+      history: settled(h), calibration: settled(c), reports: settled(r), log: settled(log),
+      failed: [[h, "analysis history"], [c, "calibration status"], [r, "reports"], [log, "processing log"]]
         .filter(([res]) => (res as PromiseSettledResult<unknown>).status === "rejected").map(([, name]) => name as string),
     }));
   }, [enabled]);
@@ -42,13 +42,53 @@ function useActivity(enabled: boolean) {
 interface Step { name: string; href: string; status: Status; detail: string; action?: string; cta?: string }
 
 const UNAVAILABLE = { status: "not_tracked" as Status, detail: "Could not be loaded from the backend" };
+const CHECKING = { status: "pending" as Status, detail: "Checking saved runs" };
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const area = (p: number[]) => p[0] * p[1];
+const px = (n: number) => n.toFixed(2);
+
+function shortImage(id: string) {
+  if (id.includes("F1C1") && id.includes("mono")) return "F1C1 mono";
+  if (id.includes("F1C1")) return "F1C1 color";
+  if (id.toLowerCase().includes("combined") && id.includes("mono")) return "combined mono";
+  if (id.toLowerCase().includes("combined")) return "combined color";
+  return id;
+}
+
+function preprocessStep(log: ProcessLogItem[] | null): Pick<Step, "status" | "detail" | "action" | "cta"> {
+  if (!log) return UNAVAILABLE;
+  const comparison = [...log].reverse().find(s => s.type === "preprocess_comparison" && s.statement);
+  if (comparison?.statement) return { status: "partial", detail: comparison.statement };
+  const runs = log.filter(s => s.type === "preprocess");
+  if (!runs.length) return { status: "pending", detail: "Not run yet", action: "Run preprocessing", cta: "Open image analysis" };
+  const last = runs[runs.length - 1];
+  return {
+    status: "partial",
+    detail: `${runs.length === 1 ? "1 copy" : `${runs.length} copies`} saved. Last: ${last.operation ?? "preprocess"} of ${shortImage(last.image_id)}. Originals unchanged. Detection has not been compared yet.`,
+  };
+}
+
+function distortionStep(log: ProcessLogItem[] | null): Pick<Step, "status" | "detail" | "action" | "cta"> {
+  if (!log) return UNAVAILABLE;
+  const runs = log.filter(s => s.type === "distortion");
+  if (!runs.length) return { status: "pending", detail: "Not run yet", action: "Measure grid geometry", cta: "Open image analysis" };
+  const measured = runs.filter((s): s is ProcessLogItem & { geometry: Geometry } => !!s.geometry && "spacing_px" in s.geometry);
+  if (!measured.length) return { status: "failed", detail: "Detection did not produce a grid to measure", action: "Try the pattern that fits inside the frame", cta: "Open image analysis" };
+  const primary = [...measured].reverse().find(s => s.image_id.includes("F1C1") && !s.image_id.toLowerCase().includes("combined") && !s.image_id.includes("mono") && s.panel == null)
+    ?? measured[measured.length - 1];
+  const g = primary.geometry;
+  const rms = g.homography_residual ? px(g.homography_residual.rms_px) : "unavailable";
+  return {
+    status: "partial",
+    detail: `${shortImage(primary.image_id)} ${primary.cols}×${primary.rows}: mean spacing ${px(g.spacing_px.mean)} px, residual RMS ${rms} px. Partial-grid pixel geometry, not a camera model.`,
+  };
+}
 
 function workflow(gridIds: Set<string>, others: number, a: Activity | null): Step[] {
   const grids = gridIds.size;
   const history = a?.history;
   const hits = history?.filter(h => h.success) ?? [];
+  const misses = history?.filter(h => !h.success).length ?? 0;
   const largest = hits.reduce<HistoryItem | null>((m, h) => (!m || area(h.pattern) > area(m.pattern) ? h : m), null);
   const cal = a?.calibration;
   const saffireModel = cal?.views_used?.some(id => gridIds.has(id));
@@ -58,15 +98,15 @@ function workflow(gridIds: Set<string>, others: number, a: Activity | null): Ste
       ...(grids + others > 0
         ? { status: "completed", detail: [grids && `${plural(grids, "SAFFIRE grid")} available`, others && `${plural(others, "other image")}`].filter(Boolean).join(", plus ") }
         : { status: "pending", detail: "No images loaded", action: "Load the four grid images", cta: "Load images" }) },
-    { name: "Image preprocessing", href: "/analysis", status: "not_tracked", detail: "Recorded in reports; the dashboard cannot read runs yet" },
+    { name: "Image preprocessing", href: "/analysis", ...(!a ? CHECKING : !a.log ? UNAVAILABLE : preprocessStep(a.log)) },
     // The true grid size is undocumented and the grid runs past the frame, so any detected pattern is
     // a user-chosen sub-region: report it as partial, never as a completed grid detection.
     { name: "Checkerboard detection", href: "/analysis",
       ...(a && !history ? UNAVAILABLE
-        : largest ? { status: "partial", detail: `Largest pattern found: ${largest.pattern.join("×")}, a sub-region; true grid size unknown` }
+        : largest ? { status: "partial", detail: `Largest pattern found: ${largest.pattern.join("×")}, a sub-region; true grid size unknown${misses ? `. ${plural(misses, "requested pattern")} ${misses === 1 ? "was" : "were"} not found` : ""}` }
         : history?.length ? { status: "in_progress", detail: `${plural(history.length, "run")}, no pattern found yet`, action: "Try a smaller pattern", cta: "Open image analysis" }
         : { status: "pending", detail: "Not run yet", action: "Run checkerboard detection", cta: "Start image analysis" }) },
-    { name: "Distortion analysis", href: "/analysis", status: "not_tracked", detail: "Recorded in reports; the dashboard cannot read runs yet" },
+    { name: "Distortion analysis", href: "/analysis", ...(!a ? CHECKING : !a.log ? UNAVAILABLE : distortionStep(a.log)) },
     // A valid model from test boards says nothing about the SAFFIRE camera, which has one view per camera.
     { name: "Calibration feasibility", href: "/calibration",
       ...(a && !cal ? UNAVAILABLE
@@ -116,9 +156,9 @@ export default function Overview() {
             <abbr title="super intelligence" className="cursor-help no-underline">SI</abbr>-Powered Fire Safety Insights from Microgravity Combustion Data
           </p>
           <p className="mt-3 max-w-[70ch] text-sm text-muted">
-            <span className="font-medium text-ink">Current module: Image Calibration and Analysis.</span>{" "}
-            SAFFIRE Vision checks the camera geometry behind NASA&apos;s SAFFIRE spacecraft fire experiments. The grid
-            images hold no flame data, so it draws no conclusions about fire behaviour.
+            SAFFIRE Vision checks the camera geometry of NASA&apos;s SAFFIRE grids, then reads the PSI combustion
+            investigations. The grids themselves hold no flame. Fire Safety Insights restate those PSI records, and
+            Flame Frames marks flame-colored pixels in an uploaded still. Neither is a validated fire measurement.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

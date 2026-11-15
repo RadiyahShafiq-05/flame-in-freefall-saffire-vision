@@ -1,16 +1,18 @@
 import json
+import uuid
 from pathlib import Path
 import cv2
-from fastapi import APIRouter, HTTPException
+import numpy as np
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response, JSONResponse
-from ..config import METADATA, OUT_DETECTED
+from ..config import METADATA, OUT_DETECTED, OUT_FLAME
 from ..schemas.analysis import (
     PreprocessRequest, DetectRequest, DistortionRequest, DetectionResponse, DistortionResponse,
-    PreprocessJsonResponse,
+    PreprocessJsonResponse, PreprocessComparisonRequest,
 )
 from ..services import image_loader as L, preprocessing as P, checkerboard_detector as D, distortion_analyzer as A
-from ..services import processing_log, panels as PN
-from ..utils import file_handler as F, imageio
+from ..services import processing_log, panels as PN, preprocess_comparison as PC, flame_frame as FF
+from ..utils import file_handler as F, imageio, validators as V
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 HISTORY = METADATA / "history.json"
@@ -138,9 +140,85 @@ def distortion(req: DistortionRequest):
     })
     return {"image_id": req.image_id, "panel": req.panel, "detection_success": det["success"], "geometry": geo}
 
+@router.post("/preprocess-comparison")
+def preprocess_comparison(req: PreprocessComparisonRequest):
+    """Compare one pattern on the original and on saved grayscale, contrast, and denoise copies.
+
+    Missing copies are reported and are not created by this request. The statement says
+    preprocessing did not change detection only when corner count and residual
+    RMS match. It uses the word improvement only when a number changes in the
+    favorable direction.
+    """
+    try:
+        F.resolve(req.image_id)
+    except FileNotFoundError:
+        raise HTTPException(404, f"Image '{req.image_id}' not found")
+    try:
+        result = PC.compare(req.image_id, req.cols, req.rows)
+    except L.InvalidImageError as e:
+        raise HTTPException(422, str(e))
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    processing_log.append({"type": "preprocess_comparison", **result})
+    return result
+
+@router.post("/flame-frame")
+async def flame_frame(
+    file: UploadFile = File(...),
+    experiment_name: str = Form(...),
+    source: str = Form(...),
+):
+    """Mark flame-colored pixels in one uploaded still and report their area.
+
+    The numbers are an approximate visual detection. They are not a validated
+    fire measurement, a temperature, or a size in millimetres. A poster that
+    already contains several flames is measured as that one file.
+    """
+    experiment_name = experiment_name.strip()
+    source = source.strip()
+    if not experiment_name or not source:
+        raise HTTPException(422, "Experiment name and source are required")
+    if len(experiment_name) > 200 or len(source) > 500:
+        raise HTTPException(422, "Experiment name or source is too long")
+    data = await file.read()
+    V.validate_upload(file.filename or "", len(data))
+    bgr = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if bgr is None:
+        raise HTTPException(422, "The file is not a readable color image")
+    try:
+        found = FF.detect(bgr)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    folder = OUT_FLAME / uuid.uuid4().hex[:12]
+    folder.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(folder / "original.png"), bgr)
+    cv2.imwrite(str(folder / "overlay.png"), FF.overlay_bgra(found["mask"]))
+    cv2.imwrite(str(folder / "processed.png"), FF.composite(bgr, found["mask"]))
+    result = {
+        "experiment_name": experiment_name,
+        "source": source,
+        "filename": Path(file.filename or "upload").name,
+        "width": found["width"],
+        "height": found["height"],
+        "flame_pixels": found["flame_pixels"],
+        "image_pixels": found["image_pixels"],
+        "coverage_percent": found["coverage_percent"],
+        "label": found["label"],
+        "original_url": f"/outputs/flame/{folder.name}/original.png",
+        "overlay_url": f"/outputs/flame/{folder.name}/overlay.png",
+        "processed_url": f"/outputs/flame/{folder.name}/processed.png",
+    }
+    processing_log.append({"type": "flame_frame", "image_id": result["filename"], **result})
+    return result
+
 @router.get("/history")
 def history():
     """Detection runs only. Each item has image_id, success, pattern, num_corners, and message."""
     if not HISTORY.exists():
         return []
     return json.loads(HISTORY.read_text(encoding="utf-8"))
+
+@router.get("/log")
+def log():
+    """Preprocessing and distortion runs, oldest first. Detection stays on /history."""
+    return processing_log.read()
