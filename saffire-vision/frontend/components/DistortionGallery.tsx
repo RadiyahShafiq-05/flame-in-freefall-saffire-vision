@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { api } from "@/lib/api";
+import { useDataset } from "@/lib/useDataset";
 
 type Color = "Color" | "Monochrome";
 type Kind = "Individual" | "Combined";
@@ -10,14 +12,9 @@ type Entry = {
   color: Color;
   kind: Kind;
   desc: string;
-  width: number;
-  height: number;
 };
 
-// Put the real files in frontend/public/images/saffire/
-const IMAGE_FOLDER = "/images/saffire/";
-
-const RAW: Pick<Entry, "file" | "color" | "kind" | "desc">[] = [
+const ENTRIES: Entry[] = [
   { file: "SAFFIRE-1_F1C1_DistortionGrid-30mmBlock_1280x920.jpg", color: "Color", kind: "Individual",
     desc: "Individual distortion-grid image in colour (F1C1 in the filename), showing the 30 mm block grid." },
   { file: "SAFFIRE-1_F1C1_DistortionGrid-30mmBlock_1280x920_mono.jpg", color: "Monochrome", kind: "Individual",
@@ -27,11 +24,6 @@ const RAW: Pick<Entry, "file" | "color" | "kind" | "desc">[] = [
   { file: "SAFFIRE-1_DistortionGrids-30mmBlock_Combined_1280x920_mono.jpg", color: "Monochrome", kind: "Combined",
     desc: "Combined distortion-grid image in monochrome, bringing the 30 mm block grids together in one picture." },
 ];
-
-const ENTRIES: Entry[] = RAW.map((r) => {
-  const m = r.file.match(/_(\d+)x(\d+)/);
-  return { ...r, width: m ? +m[1] : 0, height: m ? +m[2] : 0 };
-});
 
 // Clearly labelled stand-in. Not a NASA image.
 function placeholder(e: Entry) {
@@ -48,22 +40,17 @@ export default function DistortionGallery() {
   const [color, setColor] = useState<"all" | Color>("all");
   const [kind, setKind] = useState<"all" | Kind>("all");
   const [dir, setDir] = useState<"asc" | "desc">("asc");
-  const [found, setFound] = useState<Record<string, string | false>>({}); // file -> measured size, or false if missing
   const [open, setOpen] = useState<Entry | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  // The grids are served by the backend from data/raw/, the same files the Dataset Explorer shows.
+  const { state, dataset } = useDataset();
+  const loaded = useMemo(() => new Map((dataset?.images ?? []).map((i) => [i.filename, i])), [dataset]);
 
-  // Check which files really exist in public/images/saffire/
-  useEffect(() => {
-    ENTRIES.forEach((e) => {
-      const img = new window.Image();
-      img.onload = () => setFound((f) => ({ ...f, [e.file]: `${img.naturalWidth} × ${img.naturalHeight}` }));
-      img.onerror = () => setFound((f) => ({ ...f, [e.file]: false }));
-      img.src = IMAGE_FOLDER + e.file;
-    });
-  }, []);
-
-  const available = (e: Entry) => typeof found[e.file] === "string";
-  const src = (e: Entry) => (available(e) ? IMAGE_FOLDER + e.file : placeholder(e));
+  const available = (e: Entry) => loaded.has(e.file);
+  const src = (e: Entry) => { const im = loaded.get(e.file); return im ? api.imageUrl(im.image_id) : placeholder(e); };
+  // Filenames say 1280x920, but the combined images are side-by-side views, so only the measured size is shown.
+  const size = (e: Entry) => { const im = loaded.get(e.file); return im ? `${im.width} × ${im.height} px` : "Unknown until loaded"; };
+  const missing = state === "offline" ? "Placeholder: the backend is offline" : state === "loading" ? "Checking the backend" : "Placeholder: file not found in data/raw/";
   const count = ENTRIES.filter(available).length;
 
   const list = useMemo(() => {
@@ -83,7 +70,7 @@ export default function DistortionGallery() {
       <div className="mb-4 flex items-center gap-3">
         <h2 id="gallery-h" className="text-lg font-semibold text-ink">Image gallery</h2>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${count === ENTRIES.length ? "bg-accent/10 text-accent" : "bg-raised text-muted"}`}>
-          {count === ENTRIES.length ? "All 4 images available" : count === 0 ? "Images not yet available" : `${count} of ${ENTRIES.length} images available`}
+          {count === ENTRIES.length ? "All 4 images loaded" : state === "offline" ? "Backend offline" : state === "loading" ? "Checking…" : `${count} of ${ENTRIES.length} images loaded`}
         </span>
       </div>
 
@@ -126,7 +113,7 @@ export default function DistortionGallery() {
                 <p className="break-all text-xs font-semibold text-ink">{e.file}</p>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
                   <dt className="text-muted">Colour</dt><dd className="text-ink">{e.color}</dd>
-                  <dt className="text-muted">Dimensions</dt><dd className="text-ink">{e.width} × {e.height} px</dd>
+                  <dt className="text-muted">Dimensions</dt><dd className="text-ink">{size(e)}</dd>
                   <dt className="text-muted">Type</dt><dd className="text-ink">{e.kind}</dd>
                 </dl>
                 <button type="button" onClick={() => setOpen(e)}
@@ -153,12 +140,11 @@ export default function DistortionGallery() {
               <img src={src(open)} alt={available(open) ? `${open.color} ${open.kind.toLowerCase()} distortion grid` : "Placeholder, not a NASA image"} className="aspect-[1280/920] w-full border border-edge bg-raised object-contain" />
               <dl className="grid h-fit grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
                 <dt className="text-muted">Filename</dt><dd className="break-all">{open.file}</dd>
-                <dt className="text-muted">Dimensions</dt><dd>{open.width} × {open.height} px</dd>
-                {available(open) && <><dt className="text-muted">Measured size</dt><dd>{String(found[open.file])} px</dd></>}
+                <dt className="text-muted">Dimensions</dt><dd>{size(open)}</dd>
                 <dt className="text-muted">File format</dt><dd>JPEG (.jpg)</dd>
                 <dt className="text-muted">Colour</dt><dd>{open.color}</dd>
                 <dt className="text-muted">Image type</dt><dd>{open.kind}</dd>
-                <dt className="text-muted">Source</dt><dd>{available(open) ? "Image file found in repository" : "Placeholder: image file not yet added"}</dd>
+                <dt className="text-muted">Source</dt><dd>{available(open) ? "NASA SAFFIRE-I (PSI-98), served by the backend from data/raw/" : missing}</dd>
                 <dt className="text-muted">Description</dt><dd>{open.desc}</dd>
               </dl>
             </div>
